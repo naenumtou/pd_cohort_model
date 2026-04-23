@@ -3,3 +3,5 @@
 ![NumPy](https://img.shields.io/badge/NumPy-Numerical-green?logo=numpy&style=for-the-badge)
 ![Scikit-learn](https://img.shields.io/badge/scikit--learn-ML-orange?logo=scikitlearn&style=for-the-badge)
 ![MIT](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
+
+<img width="1692" height="930" alt="แบบจำลอง PD Model สำหรับ IFRS 9 ด้วยวิธี Cohort model" src="https://github.com/user-attachments/assets/a8a16f8e-301a-437d-b171-26d992c9984d" />

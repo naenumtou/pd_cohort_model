@@ -249,8 +249,8 @@ def odr_series(
 
     Args:
         df (pd.DataFrame)   : Input dataframe.
-        default_col (str)   : Ever default column that already flag (0, 1) for modeling.
         period_col (str)    : Period key for plotting ('AS_OF_DATE') --> For datatime lable.
+        default_col (str)   : Ever default column that already flag (0, 1) for modeling.
 
     Returns:
         Parquet file: Storaged file as .parquet format in '../data/processed'.

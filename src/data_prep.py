@@ -260,16 +260,17 @@ def odr_series(
     """
 
     print("=== Processing ===\n[ODR Calculation]")
+
+    filename = "odr"
     agg = {
         "n": (default_col, "size"),
         "bad": (default_col, "sum"),
         "odr": (default_col, "mean")
     }
-
     odr = df.groupby(period_col).agg(**agg)
     odr.to_parquet(
-    '../data/processed/odr.parquet',
+    f"../data/processed/{filename}.parquet",
     engine = 'pyarrow'
     )
     
-    return print("=== Result ===\n[Export location: '..data/processed/odr.parquet']")
+    return print(f"=== Result ===\n[Export location: '..data/processed/{filename}.parquet']")

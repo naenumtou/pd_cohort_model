@@ -160,8 +160,8 @@ def cohort_builder(
         Each segment is computed stable period for save mapping with cohort raw count.
         The granularity of cohort table can be mixed as level;
             1. Cohort level: Yearly, ODR Level: Monthly    --> Default is tracked by month-by-month in observing year
-            2. Cohort level: Yearly, ODR Level: Yearly     --> Default is tracked by summation of year in in observing year
-            3. Cohort level: Monthly, ODR Level: Monthly   --> Default is tracked by month-by-month in in observing month
+            2. Cohort level: Yearly, ODR Level: Yearly     --> Default is tracked by summation of year in observing year
+            3. Cohort level: Monthly, ODR Level: Monthly   --> Default is tracked by month-by-month in observing month
         The marginal actual ODR is computed based on the granularity.
         The cumulative sum of marginal ODR based on the granularity
 
@@ -184,7 +184,7 @@ def cohort_builder(
                     {keys: values} --> {pool (tuple , str): ODR (pd.DataFrame)}
 
     Notes:
-        - If odr_level = "Yearly", this means observed ODR will be already 12-months ODR but stil need unbias calibration.
+        - If odr_level = "Yearly", this means observed ODR will be already 12-months ODR but stil needed unbias calibration.
         - If odr_level = "Monthly", this means observed ODR will be 1-month ODR NOT 12-months.
     """
 

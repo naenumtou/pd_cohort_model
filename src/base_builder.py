@@ -98,10 +98,12 @@ def _dev_factor(
     Args:
         data (dictionary): Input dictionary. Keys are segmentation name corresponding to the pool.
                            Values are pd.DataFrame contained run-off triangle table.
+                           {keys: values} --> {pool (tuple , str): ODR (pd.DataFrame)}
 
     Returns:
         Dictionary: Keys are segmentation name corresponding to the pool.
                     Values are list of development factors for corresponding to the pool.
+                    {keys: values} --> {pool (tuple , str): development factor (list)}
 
     Notes:
         - N/A.
@@ -179,6 +181,7 @@ def cohort_builder(
     Returns:
         Dictionary: Keys are segmentation name corresponding to the pool.
                     Values are pd.DataFrame contained run-off triangle table.
+                    {keys: values} --> {pool (tuple , str): ODR (pd.DataFrame)}
 
     Notes:
         - If odr_level = "Yearly", this means observed ODR will be already 12-months ODR but stil need unbias calibration.
@@ -251,10 +254,12 @@ def chain_ladder(
     Args:
         data (dictionary): Input dictionary. Keys are segmentation name corresponding to the pool.
                            Values are pd.DataFrame contained run-off triangle table.
+                           {keys: values} --> {pool (tuple , str): ODR (pd.DataFrame)}
 
     Returns:
         Dictionary: Keys are segmentation name corresponding to the pool.
                     Values are pd.DataFrame contained imputed with Chain-Ladder triangle table (Not run-off).
+                    {keys: values} --> {pool (tuple , str): ODR (pd.DataFrame)}
 
     Notes:
         - N/A.
@@ -299,10 +304,12 @@ def segment_weighted_avg(
     Args:
         data (dictionary): Input dictionary. Keys are segmentation name corresponding to the pool.
                            Values are pd.DataFrame contained imputed with Chain-Ladder triangle table (Not run-off).
+                           {keys: values} --> {pool (tuple , str): ODR (pd.DataFrame)}
 
     Returns:
         Dictionary: Keys are segmentation name corresponding to the pool.
                     Values are np.array contained weighted average of cohort for a corresponding to the pool.
+                    {keys: values} --> {pool (tuple , str): ODR (np.array)}
 
     Notes:
         - N/A.

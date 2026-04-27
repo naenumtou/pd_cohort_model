@@ -82,6 +82,64 @@ def _stable_period(
 
     return pd.concat(stable_period, ignore_index = True)
 
+# Development factor
+def _dev_factor(
+    data: dict
+) -> dict:
+    
+    """
+    Development factor for Chain-Ladder analysis.
+
+    Description:
+        The run-off triangle table needed to be filled to avoid negativly increased in cumulative ODR,
+        when weighted average which incorrect by its definition. The method computes the slope of all
+        available information and will impute with run-off triangle tabla later.
+
+    Args:
+        data (dictionary): Input dictionary. Keys are segmentation name corresponding to the pool.
+                           Values are pd.DataFrame contained run-off triangle table.
+
+    Returns:
+        Dictionary: Keys are segmentation name corresponding to the pool.
+                    Values are list of development factors for corresponding to the pool.
+
+    Notes:
+        - N/A.
+    """
+
+    dev_factors = {}
+    for pool, c_odr in data.items():
+        arr = c_odr.values
+        weights = np.asarray(c_odr.index.get_level_values("n"), dtype = float)
+        n_cols = arr.shape[1]
+        factors = [1] #First column do not need development factor
+        
+        for i in range(0, n_cols - 1):
+            current = arr[:, i]
+            forward = arr[:, i + 1]
+            # Mask --> only valid forward (Run-off triangle table)
+            valid_mask = ~np.isnan(forward)
+
+            if np.all(valid_mask):
+                # If all valid --> do not need development factor --> slope = 1
+                factors.append(1)
+            else:
+                # If there is missing in forward window --> compute development factor
+                # Get only valid array
+                w = weights[valid_mask] #Number of observation for weights
+                c = current[valid_mask] #Current values as denominator
+                f = forward[valid_mask] #Forward values as numerator
+            
+                # Development factor
+                num = np.dot(w, f)
+                den = np.dot(w, c)
+                factor = float(num / den) if den != 0 else np.nan
+                factors.append(factor)
+
+        dev_factors[pool] = factors
+
+    return dev_factors
+
 # Cohort builder
 def cohort_builder(
     df: pd.DataFrame,
@@ -186,10 +244,9 @@ def chain_ladder(
     Chain-Ladder analysis.
 
     Description:
-        Chain-Ladder of devlopment factors imputation.
-        The run-off triangle table needed to be filled to avoid negativly increased in cumulative ODR,
-        when weighted average which incorrect by its definition. The Chain-Ladder method is used to
-        compute the slope of all available information and imputed with latest available ODR.
+        Chain-Ladder with devlopment factors imputation.
+        The run-off triangle table is filled by development factors.
+        The Chain-Ladder method is used latest available ODR and multiplied by development factors.
 
     Args:
         data (dictionary): Input dictionary. Keys are segmentation name corresponding to the pool.
@@ -205,36 +262,7 @@ def chain_ladder(
 
     print("=== Processing ===\n[Chain-Ladder by development factor]")
 
-    dev_factors = {}
-
-    for pool, c_odr in data.items():
-        arr = c_odr.values
-        weights = np.asarray(c_odr.index.get_level_values("n"), dtype = float)
-        n_cols = arr.shape[1]
-
-        factors = [1] #First column do not need development factor
-        for i in range(0, n_cols - 1):
-            current = arr[:, i]
-            forward = arr[:, i + 1]
-            # Mask --> only valid forward (Run-off triangle table)
-            valid_mask = ~np.isnan(forward)
-            if np.all(valid_mask):
-                # If all valid --> do not need development factor --> slope = 1
-                factors.append(1)
-            else:
-                # If there is missing in forward window --> compute development factor
-                # Get only valid array
-                w = weights[valid_mask] #Number of observation for weights
-                c = current[valid_mask] #Current values as denominator
-                f = forward[valid_mask] #Forward values as numerator
-            
-                # Development factor
-                num = np.dot(w, f)
-                den = np.dot(w, c)
-                factor = float(num / den) if den != 0 else np.nan
-                factors.append(factor)
-        
-        dev_factors[pool] = factors
+    dev_factors = _dev_factor(data)
     
     # Imputation by development factors
     cumulative = {}

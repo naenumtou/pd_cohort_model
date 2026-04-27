@@ -7,11 +7,26 @@ import matplotlib.dates as mdates
 import seaborn as sns
 
 # Helper function
-def _extract_for_plot(key_tuple):
+def _extract_for_plot(
+    key_tuple: tuple
+) -> str:
     
     """
+    Extract string.
     
+    Description:
+        Extracting string from dictionary keys for setting plot title.
+
+    Args:
+        key_tuple (tuple): Keys from dictionary.
+
+    Returns:
+        String: String text for plotting.
+    
+    Notes:
+        - N/A.
     """
+
     nums = tuple(int(re.search(r"\d+", s).group()) for s in key_tuple)
 
     return f"({nums[0]})" if len(nums) == 1 else f"{nums}"
@@ -450,8 +465,9 @@ def plot_lifetime(
         Showing the actual cumulative lifetime ODR.
 
     Args:
-        data (dict) : The dictionary contains actual cumulative lifetime ODR.
-        {keys: values} --> {pool (tuple , str): ODR (pd.DataFrame)}
+        data (dict)         : The dictionary contains actual cumulative lifetime ODR.
+                            {keys: values} --> {pool (tuple , str): ODR (pd.DataFrame)}
+        plot_title (str)    :Name of the plot.
 
     Returns:
         Figure: Showing figure from matplotlib.
@@ -495,3 +511,40 @@ def plot_lifetime(
         
     return plt.show()
 
+# Plot weighted average
+def plot_lifetime_avg(
+    data: dict,
+    plot_title: str
+) -> None:
+    
+    """
+    Plot weighted average cumulative lifetime ODR.
+
+    Description:
+        Showing the weighted average cumulative lifetime ODR with Chain-Ladder.
+
+    Args:
+        data (dict)         : The dictionary contains actual cumulative lifetime ODR.
+                            {keys: values} --> {pool (tuple , str): ODR (pd.DataFrame)}
+        plot_title (str)    : Name of the plot.
+
+    Returns:
+        Figure: Showing figure from matplotlib.
+
+    Notes:
+        - N/A.
+    """
+
+    # Plot
+    plt.figure(figsize = (10, 6))
+    for key, values in data.items():
+        plt.plot(values, marker = "o", label = str(key))
+    plt.gca().set_yticklabels([f'{i * 100:.2f}%' for i in plt.gca().get_yticks()])
+    plt.gca().set_xticklabels([f'{int(i + 1)}' for i in plt.gca().get_xticks()])
+    plt.xlabel("Lifetime")
+    plt.ylabel("ODR")
+    plt.title(plot_title)
+    plt.legend(frameon = True, facecolor = 'white', loc = 'upper left')
+    plt.tight_layout()
+
+    return plt.show()

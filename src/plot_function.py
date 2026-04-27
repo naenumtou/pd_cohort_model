@@ -169,7 +169,7 @@ def plot_ks(
     )
     
     plt.plot([], [], ' ', label = f"KS: {ks * 100:.2f}%")
-    plt.gca().set_yticklabels([f'{y * 100:.2f}%' for y in plt.gca().get_yticks()])
+    plt.gca().set_yticklabels([f'{i * 100:.2f}%' for i in plt.gca().get_yticks()])
     plt.xticks(ticks = [i for i in range(0, len(bin_labels))], labels = bin_labels, rotation = 90)
     plt.title('KS Curve')
     plt.xlabel('Segment')

@@ -363,6 +363,7 @@ def segment_weighted_avg(
 def gamma_fitting(
     data: dict,
     n: int
+    odr_level: str = "Yearly"
 ) -> tuple[dict, dict]:
     
     """
@@ -376,6 +377,9 @@ def gamma_fitting(
                                Values are pd.DataFrame contained imputed with weighted Chain-Ladder triangle table (Not run-off).
                                {keys: values} --> {pool (tuple , str): ODR (pd.DataFrame)}
         n (int)              : Times (Number of months or years) for extrapolation with Gamma parameters.
+        odr_level (str)      : The level to be calculate ODR as the times tracking. Default = "Yearly".
+                             If there is suffcient of historical data, yearly or monthly basis are appropriate.
+                             If there is insuffcient of historical data, only monthly basis is appropriate.
 
     Returns:
         Dictionary: Keys are segmentation name corresponding to the pool.
@@ -406,7 +410,13 @@ def gamma_fitting(
             bounds = ([1e-8, 1e-8, 1e-8], [np.inf, np.inf, np.inf]),
             method = "trf"
         )
-        n_est = [j for j in range(1, n + 1)]
+        
+        # Estimation curve
+        if odr_level == "Yearly":
+            n_est = [j for j in range(1, n + 1)]
+        elif odr_level == "Monthly":
+            n_est = [j for j in range(1, n * 12 + 1)]
+        
         gamma_fitted = np.array([_gamma_cdf(x, *popt) for x in n_est])
         gamma_odr[pool] = gamma_fitted
         gamma_params[pool] = popt #Parameters: Alpha, Beta, Constant

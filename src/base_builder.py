@@ -407,7 +407,7 @@ def gamma_fitting(
             method = "trf"
         )
         n_est = [j for j in range(1, n + 1)]
-        gamma_fitted = [_gamma_cdf(x, *popt) for x in n_est]
+        gamma_fitted = np.array([_gamma_cdf(x, *popt) for x in n_est])
         gamma_odr[pool] = gamma_fitted
         gamma_params[pool] = popt #Parameters: Alpha, Beta, Constant
         

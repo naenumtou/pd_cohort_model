@@ -126,6 +126,7 @@ def lifetime_ks(
                     Values are KS Test results.
                     {keys: values} --> {
                                             pool (tuple , str): KS-Test results (dict) --> {
+                                                                                                "n": int,
                                                                                                 "KS-Stat": float,
                                                                                                 "D-Critica": float,
                                                                                                 "Result": str)

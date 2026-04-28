@@ -459,13 +459,13 @@ def plot_lifetime(
 ) -> None:
     
     """
-    Plot cumulative lifetime ODR.
+    Plot cumulative lifetime ODR by cohort.
 
     Description:
-        Showing the actual cumulative lifetime ODR.
+        Showing the cumulative lifetime ODR by cohort.
 
     Args:
-        data (dict)         : The dictionary contains actual cumulative lifetime ODR.
+        data (dict)         : The dictionary contains cumulative lifetime ODR by cohort.
                             {keys: values} --> {pool (tuple , str): ODR (pd.DataFrame)}
         plot_title (str)    :Name of the plot.
 
@@ -521,10 +521,10 @@ def plot_lifetime_avg(
     Plot weighted average cumulative lifetime ODR.
 
     Description:
-        Showing the weighted average cumulative lifetime ODR with Chain-Ladder.
+        Showing the weighted average cumulative lifetime ODR.
 
     Args:
-        data (dict)         : The dictionary contains actual cumulative lifetime ODR.
+        data (dict)         : The dictionary contains cumulative lifetime ODR.
                             {keys: values} --> {pool (tuple , str): ODR (pd.DataFrame)}
         plot_title (str)    : Name of the plot.
 
@@ -547,4 +547,73 @@ def plot_lifetime_avg(
     plt.legend(frameon = True, facecolor = 'white', loc = 'upper left')
     plt.tight_layout()
 
+    return plt.show()
+
+# Plot curves comparision
+def plot_lifetime_comp(
+    actual: dict,
+    fitted: dict,
+    plot_title: str
+) -> None:
+    
+    """
+    Plot comparision between actual lifetime ODR and fitted lifetime ODR.
+
+    Description:
+        Showing the comparision between actual lifetime ODR and fitted lifetime ODR.
+
+    Args:
+        actual (dict)       : The dictionary contains actual cumulative lifetime ODR.
+                            {keys: values} --> {pool (tuple , str): ODR (pd.DataFrame)}
+        fitted (dict)       : The dictionary contains fitted cumulative lifetime ODR.
+                            {keys: values} --> {pool (tuple , str): ODR (pd.DataFrame)}
+        plot_title (str)    : Name of the plot.
+
+    Returns:
+        Figure: Showing figure from matplotlib.
+
+    Notes:
+        - N/A.
+    """
+
+    fig, axs = plt.subplots(2, int(len(actual) / 2), figsize = (20, 8), sharex = False)
+    fig.suptitle(plot_title)
+    for ax, (key, actual_odr), (_, fitted_odr)in zip(axs.flat, actual.items(), fitted.items()):
+        label = _extract_for_plot(key)
+        ax.set_title(f"Segment - {label}")
+        ax.plot(
+            actual_odr,
+            label = "Actual",
+            color = "#0070C0",
+            linewidth = 2
+        )
+        ax.plot(
+            fitted_odr,
+            label = "Fitted",
+            color = "#61CBF4",
+            linestyle = "--",
+            linewidth = 2
+        )
+        ax.set_yticklabels([f"{y * 100:.2f}%" for y in ax.get_yticks()])
+        ax.set_xticklabels([f"{int(x + 1)}" for x in ax.get_xticks()])
+        ax.set_xlabel('Lifetime')
+        
+        # Marginal ODR
+        ax_r = ax.twinx()
+        ax_r.plot(
+            np.concatenate([[fitted_odr[0]], np.diff(fitted_odr)]), #Keep first position
+            label = "Marginal",
+            color = "#47D45A",
+            linestyle = "--",
+            linewidth = 2
+        )
+        ax_r.set_yticklabels([f"{y * 100:.2f}%" for y in ax.get_yticks()])
+
+        # Keep labels for legend
+        lines, labels = ax.get_legend_handles_labels()
+        lines_r, labels_r = ax_r.get_legend_handles_labels()
+        ax.legend(lines + lines_r, labels + labels_r, loc = "center right")
+     
+    plt.tight_layout()
+        
     return plt.show()

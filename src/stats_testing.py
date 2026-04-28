@@ -190,7 +190,7 @@ def lifetime_ks(
         ks_results[pool] = {
             "n": n,
             "KS-Stat": ks_stat,
-            "D-Critica": d_crit,
+            "D-Critical": d_crit,
             "Result": ks_result
         }
         print(f"    [✓] Pool {i}: Segment - {pool}")

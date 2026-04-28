@@ -607,7 +607,7 @@ def plot_lifetime_comp(
             linestyle = "--",
             linewidth = 2
         )
-        ax_r.set_yticklabels([f"{y * 100:.2f}%" for y in ax.get_yticks()])
+        ax_r.set_yticklabels([f"{y * 100:.2f}%" for y in ax_r.get_yticks()])
 
         # Keep labels for legend
         lines, labels = ax.get_legend_handles_labels()

@@ -165,10 +165,12 @@ def lifetime_ks(
         # KS Test
         max_bucket, min_bucket = _bound_bucket(n, start = min_odr, diff_odr = diff)
         actual_diff = (
-            (actual_odr[:, None] >= min_bucket) & (actual_odr[:, None] < max_bucket)
+            (actual_odr[None, :] >= min_bucket[:, None]) & \
+            (actual_odr[None, :] < max_bucket[:, None])
         ).sum(axis = 1).cumsum() / n
         fitted_diff = (
-            (fitted_odr[:, None] >= min_bucket) & (fitted_odr[:, None] < max_bucket)
+            (fitted_odr[None, :] >= min_bucket[:, None]) & \
+            (fitted_odr[None, :] < max_bucket[:, None])
         ).sum(axis = 1).cumsum() / n
         ks_stat = np.max(np.abs(actual_diff - fitted_diff))
 

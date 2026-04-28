@@ -359,10 +359,10 @@ def segment_weighted_avg(
 
     return weighted_avg
 
-
 # Gamma fitting
 def gamma_fitting(
-    data: dict
+    data: dict,
+    n: int
 ) -> tuple[dict, dict]:
     
     """
@@ -372,9 +372,10 @@ def gamma_fitting(
         Curve fitting with Gamma cumulative distribution function.
 
     Args:
-        data (dictionary): Input dictionary. Keys are segmentation name corresponding to the pool.
-                           Values are pd.DataFrame contained imputed with weighted Chain-Ladder triangle table (Not run-off).
-                           {keys: values} --> {pool (tuple , str): ODR (pd.DataFrame)}
+        data (dictionary)    : Input dictionary. Keys are segmentation name corresponding to the pool.
+                               Values are pd.DataFrame contained imputed with weighted Chain-Ladder triangle table (Not run-off).
+                               {keys: values} --> {pool (tuple , str): ODR (pd.DataFrame)}
+        n (int)              : Times (Number of months or years) for extrapolation with Gamma parameters.
 
     Returns:
         Dictionary: Keys are segmentation name corresponding to the pool.
@@ -392,10 +393,10 @@ def gamma_fitting(
     
     gamma_odr = {}
     gamma_params = {}
-    n = 10 #Define 10-years for extrapolation
 
     for i, (pool, c_odr) in enumerate(data.items()):
-        n_odr = [j for j in range(1, len(c_odr) + 1)]
+        n_odr = [j for j in range(1, len(c_odr) + 1)] #Actual range of times
+        
         # Curve fitting
         popt, _ = curve_fit(
             f = _gamma_cdf,
@@ -407,8 +408,9 @@ def gamma_fitting(
         )
         n_est = [j for j in range(1, n + 1)]
         gamma_fitted = [_gamma_cdf(x, *popt) for x in n_est]
-        print(f"    [✓] Pool {i}: Segment - {pool}")
         gamma_odr[pool] = gamma_fitted
         gamma_params[pool] = popt #Parameters: Alpha, Beta, Constant
-    
+        
+        print(f"    [✓] Pool {i}: Segment - {pool}")
+
     return gamma_odr, gamma_params

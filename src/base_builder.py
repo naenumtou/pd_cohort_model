@@ -374,7 +374,7 @@ def gamma_fitting(
 
     Args:
         data (dictionary)    : Input dictionary. Keys are segmentation name corresponding to the pool.
-                               Values are pd.DataFrame contained  weighted average lifetime ODR.
+                               Values are pd.DataFrame contained weighted average lifetime ODR.
                                {keys: values} --> {pool (tuple , str): ODR (np.array)}
         n (int)              : Times (Number of months or years) for extrapolation with Gamma parameters.
         odr_level (str)      : The level to be calculate ODR as the times tracking. Default = "Yearly".

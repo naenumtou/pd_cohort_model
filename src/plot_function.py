@@ -525,7 +525,7 @@ def plot_lifetime_avg(
 
     Args:
         data (dict)         : The dictionary contains cumulative lifetime ODR.
-                            {keys: values} --> {pool (tuple , str): ODR (pd.DataFrame)}
+                            {keys: values} --> {pool (tuple , str): ODR (np.array)}
         plot_title (str)    : Name of the plot.
 
     Returns:
@@ -557,16 +557,16 @@ def plot_lifetime_comp(
 ) -> None:
     
     """
-    Plot comparision between actual lifetime ODR and fitted lifetime ODR.
+    Plot comparision between weighted average lifetime ODR and fitted lifetime ODR.
 
     Description:
-        Showing the comparision between actual lifetime ODR and fitted lifetime ODR.
+        Showing the comparision between weighted average lifetime ODR and fitted lifetime ODR.
 
     Args:
-        actual (dict)       : The dictionary contains actual cumulative lifetime ODR.
-                            {keys: values} --> {pool (tuple , str): ODR (pd.DataFrame)}
+        actual (dict)       : The dictionary contains weighted average cumulative lifetime ODR.
+                            {keys: values} --> {pool (tuple , str): ODR (np.array)}
         fitted (dict)       : The dictionary contains fitted cumulative lifetime ODR.
-                            {keys: values} --> {pool (tuple , str): ODR (pd.DataFrame)}
+                            {keys: values} --> {pool (tuple , str): ODR (np.array)}
         plot_title (str)    : Name of the plot.
 
     Returns:

@@ -343,7 +343,7 @@ def segment_weighted_avg(
 
     Returns:
         Dictionary: Keys are segmentation name corresponding to the pool.
-                    Values are np.array contained weighted average of cohort for a corresponding to the pool.
+                    Values are np.array contained weighted average lifetime ODR of cohort for a corresponding to the pool.
                     {keys: values} --> {pool (tuple , str): ODR (np.array)}
 
     Notes:
@@ -374,8 +374,8 @@ def gamma_fitting(
 
     Args:
         data (dictionary)    : Input dictionary. Keys are segmentation name corresponding to the pool.
-                               Values are pd.DataFrame contained imputed with weighted Chain-Ladder triangle table (Not run-off).
-                               {keys: values} --> {pool (tuple , str): ODR (pd.DataFrame)}
+                               Values are pd.DataFrame contained  weighted average lifetime ODR.
+                               {keys: values} --> {pool (tuple , str): ODR (np.array)}
         n (int)              : Times (Number of months or years) for extrapolation with Gamma parameters.
         odr_level (str)      : The level to be calculate ODR as the times tracking. Default = "Yearly".
                              If there is suffcient of historical data, yearly or monthly basis are appropriate.

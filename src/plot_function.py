@@ -538,7 +538,7 @@ def plot_lifetime_avg(
     # Plot
     plt.figure(figsize = (10, 6))
     for key, values in data.items():
-        plt.plot(values, marker = "o", label = str(key))
+        plt.plot(values, label = str(key))
     plt.gca().set_yticklabels([f'{i * 100:.2f}%' for i in plt.gca().get_yticks()])
     plt.gca().set_xticklabels([f'{int(i + 1)}' for i in plt.gca().get_xticks()])
     plt.xlabel("Lifetime")

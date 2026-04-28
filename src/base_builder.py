@@ -142,6 +142,41 @@ def _dev_factor(
 
     return dev_factors
 
+# Gamma CDF Function
+def _gamma_cdf(
+    x: np.array,
+    alpha: float,
+    beta: float,
+    constant: float
+) -> np.array:
+    
+    """
+    Gamma cumulative distribution function.
+
+    Description:
+        To define the Chain-Ladder cumulative lifetime ODR is following the Gamma distribution.
+        The Gamma CDF is using 3 parameters, which are;
+            1. alpha is shape of the distribution.
+            2. loc is the location of the distribution. In this case, the location is fixed --> loc = 0.
+            3. beta (scale) is the size of the distribution.
+            4. constant is a control parameter. Given the cumulative lifetime ODR might have a small number.
+               Thus, by adding the control parameter will proivde more stable fitting results.
+
+    Args:
+        x (np.array)        : The input for fitting (Chain-Ladder cumulative lifetime ODR).
+        alpha (float)       : Shape parameter.
+        beta (float)        : Scale parameter.
+        constant (float)    : Control parameter.
+
+    Returns:
+        np.array: Fitted output from Gamma CDF Function.
+
+    Notes:
+        - N/A.
+    """
+
+    return gamma.cdf(x, alpha, loc = 0, scale = beta) * constant
+
 # Cohort builder
 def cohort_builder(
     df: pd.DataFrame,
@@ -323,3 +358,57 @@ def segment_weighted_avg(
         weighted_avg[pool] = avg
 
     return weighted_avg
+
+
+# Gamma fitting
+def gamma_fitting(
+    data: dict
+) -> tuple[dict, dict]:
+    
+    """
+    Gamma cumulative distribution fitting.
+
+    Description:
+        Curve fitting with Gamma cumulative distribution function.
+
+    Args:
+        data (dictionary): Input dictionary. Keys are segmentation name corresponding to the pool.
+                           Values are pd.DataFrame contained imputed with weighted Chain-Ladder triangle table (Not run-off).
+                           {keys: values} --> {pool (tuple , str): ODR (pd.DataFrame)}
+
+    Returns:
+        Dictionary: Keys are segmentation name corresponding to the pool.
+                    Values are np.array contained fitted lifetime ODR for a corresponding to the pool.
+                    {keys: values} --> {pool (tuple , str): ODR (np.array)}
+        Dictionary: Keys are segmentation name corresponding to the pool.
+                    Values are fitted parameters from Gamma cumulative distribution function.
+                    {keys: values} --> {pool (tuple , str): parameters (np.array: --> [Alpha, Beta, Constant])}
+
+    Notes:
+        - N/A.
+    """
+
+    print("=== Processing ===\n[Gamma distribution fitting]")
+    
+    gamma_odr = {}
+    gamma_params = {}
+    n = 10 #Define 10-years for extrapolation
+
+    for i, (pool, c_odr) in enumerate(data.items()):
+        n_odr = [j for j in range(1, len(c_odr) + 1)]
+        # Curve fitting
+        popt, _ = curve_fit(
+            f = _gamma_cdf,
+            xdata = n_odr,
+            ydata = c_odr,
+            p0 = [0.1, 0.1, 0.1],
+            bounds = ([1e-8, 1e-8, 1e-8], [np.inf, np.inf, np.inf]),
+            method = "trf"
+        )
+        n_est = [j for j in range(1, n + 1)]
+        gamma_fitted = [_gamma_cdf(x, *popt) for x in n_est]
+        print(f"    [✓] Pool {i}: Segment - {pool}")
+        gamma_odr[pool] = gamma_fitted
+        gamma_params[pool] = popt #Parameters: Alpha, Beta, Constant
+    
+    return gamma_odr, gamma_params

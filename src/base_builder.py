@@ -470,3 +470,67 @@ def gamma_fitting(
         print(f"    [✓] Pool {i}: Segment - {pool}")
 
     return gamma_odr, gamma_params
+
+# Unbias ODR Calibration process
+def unbias_calibration(
+    lifetime_data: dict,
+    unbias_data: pd.DataFrame,
+    unbias_segment_col: str,
+    unbias_odr_col: str,
+    n_col: str
+) -> dict:
+
+    """
+    The unbias ODR Calibration proceses with fitted pool lifetime level.
+
+    Description:
+        ODR Calibration is based on the concept that ratio of odds ratio
+        for month m or year y and 12 months or 1-year ODR. By assumption that
+        it will remain the same shape for segmentation level and the lifetime pool level.
+
+    Args:
+        lifetime_data (dictionary)  : The input for calibration (Gamma cumulative lifetime ODR).
+        unbias_data (pd.DataFrame)  : The input of 12-months unbias ODR.
+        unbias_segment_col (str)    : Segmentation columns.
+        unbias_odr_col (str)        : ODR Columns.
+        n_col (str)                 : Number of observation for a corresponding to the segment.
+
+    Returns:
+        Dictionary: Keys are segmentation name corresponding to the pool.
+                    Values are unbias calibration results
+                    {keys: values} --> {
+                                        segment (str): Unbias calibration results (dict) --> {
+                                                                                              "n": int,
+                                                                                              "Unbias": np.array,
+                                                                                             }
+                                        }
+
+    Notes:
+        - N/A.
+    """
+
+    print("=== Processing ===\n[12-months unbias ODR Calibration]")
+
+    calibrated_unbias = {}
+    
+    unbias = unbias_data[[unbias_segment_col, unbias_odr_col, n_col]]
+    unbias["segment_id"] = unbias[unbias_segment_col].str.extract(r"(\d+)").astype(int)
+
+    #Natual sort by --> segment_0, segment_1, segment_2, ... NOT segment_0, segment_1, segment_10, ...
+    unbias = unbias.sort_values(by = ["segment_id"])
+
+    for seg_unbias in unbias[unbias_segment_col]:
+        odr = unbias[unbias[unbias_segment_col] == seg_unbias][unbias_odr_col].iloc[0] #Extract only value
+        n = unbias[unbias[unbias_segment_col] == seg_unbias][n_col].iloc[0] #Keep n for later calculation
+        for pool, curve in lifetime_data.items():
+
+            # Calibration on pool level by seperated unbias 12-months ODR
+            if seg_unbias in pool:
+                calibrated = _odds_calibration(ttc = curve, odr_12_unbias = odr)
+                calibrated_unbias[seg_unbias] = {
+                    "n": n,
+                    "Unbias": calibrated
+                }
+                print(f"    [✓] Segment - {seg_unbias}")
+    
+    return calibrated_unbias

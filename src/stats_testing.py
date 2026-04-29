@@ -116,10 +116,10 @@ def lifetime_ks(
     Args:
         actual (dict)   : Input dictionary. Keys are segmentation name corresponding to the pool.
                           Values are pd.DataFrame contained imputed with weighted Chain-Ladder triangle table (Not run-off).
-                          {keys: values} --> {pool (tuple , str): ODR (pd.DataFrame)}
+                          {keys: values} --> {pool (tuple , str): ODR (np.array)}
         fitted (dict)   : Input dictionary. Keys are segmentation name corresponding to the pool.
                           Values are pd.DataFrame contained fitted lifetime ODR.
-                          {keys: values} --> {pool (tuple , str): ODR (pd.DataFrame)}
+                          {keys: values} --> {pool (tuple , str): ODR (np.array)}
 
     Returns:
         Dictionary: Keys are segmentation name corresponding to the pool.

@@ -177,6 +177,52 @@ def _gamma_cdf(
 
     return gamma.cdf(x, alpha, loc = 0, scale = beta) * constant
 
+# Unbias calibration with odds function
+def _odds_calibration(
+    ttc: np.array,
+    odr_12_unbias: float,
+    odr_level: str = "Yearly"
+) -> np.array:
+    
+    """
+    Odds calibration function for unbias.
+
+    Description:
+        ODR Calibration is based on the concept that ratio of odds ratio
+        for month m or year y and 12 months or 1-year ODR. By assumption that
+        it will remain the same shape for segmentation level and the lifetime pool level.
+
+    Args:
+        ttc (np.array)          : The input for calibration (Gamma cumulative lifetime ODR).
+        odr_12_unbias (float)   : The 12-months unbias ODR.
+        odr_level (str)         : The level of calculated lifetime ODR. Default = "Yearly".
+
+    Returns:
+        np.array: Fitted output from odds calibration formula.
+
+    Notes:
+        - The ODR Level MUST consist with the inital level of development.
+        - If odr_level = "Yearly", this means target for calibartion is the first year ODR.
+        - If odr_level = "Monthly", this means target for calibartion is the 12-months ODR.
+    """
+    
+    if odr_level == "Yearly":
+        target = ttc[0] #At first position is 1-year ODR
+    elif odr_level == "Monthly":
+        target = ttc[11] #At 12 position is 12-months (1-year) ODR
+    else:
+        return print("[WARN]: ODR Level must be 'Yearly' or 'Monthly'")
+    
+    # Odds calibration
+    unbias_curve = (
+        odr_12_unbias * (ttc / target)
+    ) / (
+        (odr_12_unbias * (ttc / target)) + 
+        (((1 - ttc) / (1 - target)) * (1 - odr_12_unbias))
+    )
+
+    return unbias_curve
+
 # Cohort builder
 def cohort_builder(
     df: pd.DataFrame,
@@ -390,7 +436,7 @@ def gamma_fitting(
                     {keys: values} --> {pool (tuple , str): parameters (np.array: --> [Alpha, Beta, Constant])}
 
     Notes:
-        - N/A.
+        - The ODR Level MUST consist with the inital level of development.
     """
 
     print("=== Processing ===\n[Gamma distribution fitting]")

@@ -129,7 +129,7 @@ def lifetime_ks(
                                                                                                 "n": int,
                                                                                                 "KS-Stat": float,
                                                                                                 "D-Critica": float,
-                                                                                                "Result": str)
+                                                                                                "Result": str
                                                                                            }
                                        }
 

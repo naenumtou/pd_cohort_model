@@ -617,3 +617,70 @@ def plot_lifetime_comp(
     plt.tight_layout()
         
     return plt.show()
+
+# Plot unbias lifetime curves
+def plot_unbias_lifetime(
+    fitted: dict,
+    unbias: dict,
+    plot_title: str
+) -> None:
+        
+    """
+    Plot unbias lifetime ODR.
+
+    Description:
+        Showing the unbias lifetime ODR.
+
+    Args:
+        fitted (dict)       : The dictionary contains fitted cumulative lifetime ODR.
+                            {keys: values} --> {pool (tuple , str): ODR (np.array)}
+        unbias (dict)       : Keys are segmentation name corresponding to the pool.
+                            Values are unbias calibration results
+                            {keys: values} --> {
+                                                segment (str): Unbias calibration results (dict) --> {
+                                                                                                      "n": int,
+                                                                                                      "Unbias": np.array,
+                                                                                                      }
+                                                }
+        plot_title (str)    : Name of the plot.
+
+    Returns:
+        Figure: Showing figure from matplotlib.
+
+    Notes:
+        - N/A.
+    """
+
+    fig, axs = plt.subplots(2, int(len(fitted) / 2), figsize = (20, 8), sharex = False)
+    fig.suptitle(plot_title)
+    
+    for ax, (lifetime_key, lifetime_value) in zip(axs.flat, fitted.items()):
+            
+            # Plot pool lifetime
+            label = _extract_for_plot(lifetime_key)
+            ax.set_title(f"Segment - {label}")
+            ax.plot(
+                lifetime_value,
+                label = "Pool level",
+                color = "#61CBF4",
+                linestyle = "--",
+                linewidth = 2
+            )
+
+            for unbias_key, unbias_value in unbias.items():
+                if unbias_key in lifetime_key:
+
+                    # Plot segment lifetime
+                    ax.plot(
+                        unbias_value["Unbias"],
+                        label = unbias_key,
+                        linewidth = 2
+                    )
+                    ax.set_yticklabels([f"{y * 100:.2f}%" for y in ax.get_yticks()])
+                    ax.set_xticklabels([f"{int(x + 1)}" for x in ax.get_xticks()])
+                    ax.set_xlabel('Lifetime')
+                    ax.legend(frameon = True, facecolor = 'white', loc = "center right")
+
+    plt.tight_layout()
+    
+    return plt.show()

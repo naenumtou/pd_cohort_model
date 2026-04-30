@@ -1,3 +1,5 @@
+# IFRS 9 PD Modeling Framework via Cohort Approach
+
 ![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python&style=for-the-badge)
 ![Pandas](https://img.shields.io/badge/pandas-Data%20Analysis-purple?logo=pandas&style=for-the-badge)
 ![NumPy](https://img.shields.io/badge/NumPy-Numerical-green?logo=numpy&style=for-the-badge)

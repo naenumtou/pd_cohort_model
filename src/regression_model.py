@@ -4,9 +4,7 @@ import numpy as np
 import pickle
 import statsmodels.api as sm
 
-
 from joblib import Parallel, delayed
-
 from src.stats_testing import vif_test, and_dar_test, adf_test
 from statsmodels.stats.diagnostic import spec_white
 from statsmodels.stats.stattools import durbin_watson

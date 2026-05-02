@@ -437,3 +437,107 @@ def single_regression(
         fig = plot_univariate(df, p_threshold, r2_threshold)
         
         return results, fig
+
+# Multivariate analysis
+def multivariate_selection(
+    X: pd.DataFrame,
+    group: pd.DataFrame,
+    mev_col: str,
+    group_col: str,
+    univariate_result: pd.DataFrame,
+    n_select: int = 1,
+    outplot: bool = True
+) -> tuple[list, None]:
+    
+    """
+    Multivariate analysis by cluster analysis.
+
+    Description:
+        One of the commonly used methods in the industry to assess the multicollinearity is
+        Variable Clustering, which attempts to divide a set of variables into non-overlapping clusters.
+        It finds clusters or groups of the variables that are as correlated as possible with
+        the variables within the cluster and as uncorrelated as possible with the variables from other. 
+        If it is observed that the eigenvalue of the cluster is greater than a certain threshold,
+        then the cluster will be further split into separate cluster.
+
+        The "VarClusHi_Opt" library is custom build. (pip install varclushi_opt).
+        Visit link: https://github.com/naenumtou/varclushi_opt
+        
+        Analysis can then be done on the output of VarClusHi_Opt in order to select the variables from each cluster.
+        The clusters from the output will be used as a starting point in order to group the variables into groups
+        where the variables within the group are highly correlated with each other but have low correlation for
+        other groups. The R-Squared with Own Cluster and Next Closest columns can be used as a general guide.
+        Below are the criteria for the selection per cluster;
+            1) n variable(s) with the lowest R-square ratio.
+            2) n variable(s) with the highest R-square.
+
+    Args:
+        X (pd.DataFrame)                    : The transformed MEV(s) Data.
+        group (pd.DataFrame)                : The data of MEV(s) sign and group contained.
+        mev_col (str)                       : Name of MEV(s) column.
+        group_col (str)                     : Name of MEV(s) group column.
+        univariate_result (pd.DataFrame)    : The table result from univariate analysis.
+        n_select (int)                      : Number of selected variables per cluster.
+        outplot (bool)                      : Option for output plotting.
+
+    Returns:
+        List    : The selected MEV(s) with cluster number and group of MEV(s).
+        Figure  : Showing figure from matplotlib.
+
+    Notes:
+        - The output parameters need to define either 2 or 1 depending on outplot option.
+        - If outplot = Ture --> output parameters will be 2.
+        - If outplot = False --> output parameters will be 1.
+    """
+
+    print(f"=== Processing ===\n[Multivariate analysis]")
+
+    # Passed variables from univariate to list
+    passed_vars = univariate_result[univariate_result["pass"] == True][mev_col].tolist()
+
+    # Cluster analysis
+    data = X[passed_vars]
+    cluster_opt = VarClusHi_Opt(data, maxeigval2 = 1, maxclus = None)
+    cluster_opt.varclus()
+    clsuter_df = cluster_opt.rsquare
+    clsuter_df["Cluster"] += 1 #Make cluster index start from 1
+
+    # Mapping R-Sqaure for selection
+    r2_map = univariate_result.set_index(mev_col)["r2"].to_dict()
+    clsuter_df["r2"] = clsuter_df["Variable"].map(r2_map)
+
+    # Mapping group for combination
+    group_map = group.set_index(mev_col)[group_col].to_dict()
+    clsuter_df[group_col] = clsuter_df["Variable"].map(group_map)
+
+    # Sorting
+    g = clsuter_df.groupby("Cluster", sort = False)
+
+    # R-Sqaure ratio (Low --> high)
+    clsuter_df["r2_ratio_rank"] = g["RS_Ratio"].rank(
+        method = "first",
+        ascending = True   
+    )
+
+    # R-Sqaure (High --> low)
+    clsuter_df["r2_rank"] = g["r2"].rank(
+        method = "first",
+        ascending = False
+    )
+
+    # Selection
+    clsuter_df["pass"] = (
+        (clsuter_df["r2_ratio_rank"] <= n_select) |
+        (clsuter_df["r2_rank"] <= n_select)
+    )
+
+    passed_vars = clsuter_df[clsuter_df["pass"] == True][["Variable", group_col, "Cluster"]].values.tolist()
+
+    print(f"=== Result ===\nNumber of passed variables: {len(passed_vars)}")
+
+    if outplot is False:
+        return passed_vars
+    
+    else:
+        fig = plot_cluster_timeseries(X, clsuter_df)
+        return passed_vars, fig

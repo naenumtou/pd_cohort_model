@@ -424,7 +424,7 @@ def single_regression(
     print(f"=== Result ===\nNumber of passed variables: {len(passed_vars)}")
 
     if outplot is False:
-        return passed_vars
+        return results
     else:
 
         # Data for the plot
@@ -436,4 +436,4 @@ def single_regression(
         df["category"] = df.apply(_categorise, axis = 1)
         fig = plot_univariate(df, p_threshold, r2_threshold)
         
-        return passed_vars, fig
+        return results, fig

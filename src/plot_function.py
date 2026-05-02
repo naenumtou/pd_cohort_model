@@ -684,3 +684,49 @@ def plot_unbias_lifetime(
     plt.tight_layout()
     
     return plt.show()
+
+# Plot series dependence variable
+def plot_dep_var(
+    y: pd.Series,
+    y_target: pd.Series,
+    target_label: str
+) -> None:
+    
+    """
+    Plot dependence variables for regression model.
+
+    Description:
+        Showing the historical dependence variables (logit, CF, CCI) for regression model.
+
+    Args:
+        y (pd.Series)           : The actual monthly ODR.
+        y_target (pd.Series)    : The transformed dependence variable.
+        target_label (str)      : The method name. E.g., "Logit", "CF", "CCI".
+
+    Returns:
+        Figure: Showing figure from matplotlib.
+
+    Notes:
+        - This function will be called in the src.regression_model in prepare_training_set().
+    """
+    
+    fig, ax = plt.subplots(figsize = (10, 6))
+    fig.suptitle("Historical dependence variable")
+    colorY = '#ffd500' #Set color theme --> Yellow
+    colorG = '#808080' #Set color theme --> Gray
+
+    ax.plot(y_target, color = colorY, linewidth = 2, label = target_label)
+    ax.set_yticklabels([f"{y:.4f}" for y in ax.get_yticks()])
+
+    if target_label != "CCI":
+        ax_r = ax.twinx()
+        ax_r.plot(y, color = colorG, linestyle = "--", linewidth = 2, label = "ODR")
+        ax_r.set_yticklabels([f"{y * 100:.2f}%" for y in ax_r.get_yticks()])
+        lines, labels = ax.get_legend_handles_labels()
+        lines_r, labels_r = ax_r.get_legend_handles_labels()
+        ax.legend(lines + lines_r, labels + labels_r, loc = "upper right")
+    else:
+        ax.legend(loc = "upper right")
+    plt.tight_layout()
+    
+    return fig

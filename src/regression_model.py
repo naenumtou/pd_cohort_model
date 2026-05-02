@@ -55,6 +55,36 @@ def _expand_sign(
         .drop(columns = "NEW")
     )
 
+# Categories passed results
+def _categorise(
+    row: pd.DataFrame
+) -> str:
+    
+    """
+    Categories passed results.
+
+    Description:
+        Categories passed results for data plotting.
+
+    Args:
+        row (pd.DataFrame): The data with univariate analysis result of R-Sqaure, p-value and intuitive sign.
+
+    Returns:
+        str: The flagged string for categorise passed variables.
+
+    Notes:
+        - N/A.
+    """
+
+    if not row["sig_ok"]:
+        return "Not significant"
+    if not row["r2_ok"]:
+        return "R² ≤ 50%"
+    if not row["sign_ok"]:
+        return "Wrong sign"
+    
+    return "Pass all 3"
+
 # MEV(s) Transformation
 def mev_transformation(
     raw_data: pd.DataFrame,
@@ -305,3 +335,105 @@ def prepare_training_set(
 
         else:
             return print("[WARN]: model_method must be 'Logit', 'CF' or 'CCI'")
+
+# Univariate analysis
+def single_regression(
+    X: pd.DataFrame,
+    y: pd.Series,
+    sign: pd.DataFrame,
+    mev_col: str,
+    sign_col: str,
+    p_threshold: float = 0.05,
+    r2_threshold: float = 0.5,
+    outplot: bool = True
+) -> tuple[list, None]:
+    
+    """
+    Univariate analysis by single linear regression.
+
+    Description:
+        Upon completion of transforming MEVs, preliminary assessments are performed
+        to further shortlist the MEVs prior to the multivariate analysis.Any MEVs will be
+        selected if it passes the following criteria;
+            1) p-value significant.
+            2) Predictive power of R-Square more than 50%.
+            3) An intuitive relationship between the MEVs and dependence variable where the expected sign is predefined.
+               Either sign (0) with p-value significant and more than 50% R-Sqaure are allowed.
+
+    Args:
+        X (pd.DataFrame)        : The transformed MEV(s) Data.
+        y (pd.Series)           : The dependence variable target data (Logit, CF or CCI).
+        sign (pd.DataFrame)     : The data of MEV(s) sign and group contained.
+        mev_col (str)           : Name of MEV(s) column.
+        sign_col (str)          : Name of MEV(s) sign column.
+        p_threshold (float)     : p-value threshold. Default is 0.05 (5%).
+        r2_threshold (float)    : R-Square threshold. Default is 0.5 (50%).
+        outplot (bool)          : Option for output plotting.
+
+    Returns:
+        List    : The selected MEV(s).
+        Figure  : Showing figure from matplotlib.
+
+    Notes:
+        - The output parameters need to define either 2 or 1 depending on outplot option.
+        - If outplot = Ture --> output parameters will be 2.
+        - If outplot = False --> output parameters will be 1.
+    """    
+
+    print(f"=== Processing ===\n[Univariate analysis]")
+
+    # For vector calculation
+    X_arr = X.values
+    y_arr = y.values
+    n = len(y_arr)
+
+    # Vectorized correlation
+    corr = np.corrcoef(X_arr.T, y_arr)[-1, :-1]
+    r2 = corr ** 2
+
+    # p-value
+    t_stat = corr * np.sqrt((n - 2) / (1 - corr ** 2 + 1e-12))
+    p_values = 2 * t.sf(np.abs(t_stat), df = n - 2)
+
+    # Coefficient = corr * (std_y / std_x)
+    std_x = X_arr.std(axis = 0)
+    std_y = y_arr.std()
+    coff = corr * (std_y / (std_x + 1e-12))
+
+    # Sign of MEV(s)
+    sign_map = sign.set_index(mev_col)[sign_col].to_dict()
+    sign_mev = sign[sign_col].values
+    
+    # Selection
+    passed = (p_values < p_threshold) & (r2 >= r2_threshold) & ((sign_mev == 0) | (coff / sign_mev > 0))
+
+    # To DataFrame
+    results = pd.DataFrame(
+        {
+            "MEV": X.columns,
+            "coefficient": coff,
+            "p_value": p_values,
+            "r2": r2
+        }
+    )
+    
+    results[sign_col] = results[mev_col].map(sign_map)
+    results["Pass"] = passed
+    passed_vars = results.loc[passed, mev_col].tolist()
+
+    print(f"=== Result ===\nNumber of passed variables: {len(passed_vars)}")
+
+    if outplot is False:
+        return passed_vars
+    else:
+
+        # Data for the plot
+        df = results.copy()
+        df["neg_log_p"] = -np.log10(df["p_value"].clip(lower = 1e-300))
+        df["sign_ok"] = (np.sign(df["coefficient"]) == df[sign_col]) | (df[sign_col] == 0)
+        df["sig_ok"] = df["p_value"] < p_threshold
+        df["r2_ok"] = df["r2"] >= r2_threshold
+        df["category"] = df.apply(_categorise, axis = 1)
+        fig = plot_univariate(df, p_threshold, r2_threshold)
+        
+        return passed_vars, fig

@@ -11,7 +11,7 @@ from joblib import Parallel, delayed
 from statsmodels.stats.diagnostic import spec_white
 from statsmodels.stats.stattools import durbin_watson
 
-from src.plot_function import plot_dep_var
+from src.plot_function import plot_dep_var, plot_univariate, plot_cluster_timeseries
 from src.stats_testing import vif_test, and_dar_test, adf_test
 
 # Helper function

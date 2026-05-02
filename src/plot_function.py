@@ -791,3 +791,59 @@ def plot_univariate(
     plt.tight_layout()
 
     return fig
+
+# Plot multivariate result
+def plot_cluster_timeseries(
+    X: pd.DataFrame,
+    result: pd.DataFrame,
+):
+
+    """
+    Plot multivariate result.
+
+    Description:
+        Showing the multivariate analysis result by plotting Z-Score per cluster.
+        The colors highlight of selected time seies MEV(s).
+
+    Args:
+        X (pd.DataFrame)        : The transformed MEV(s) Data.
+        result (pd.DataFrame)   : The table result from multivariate analysis.
+
+    Returns:
+        Figure: Showing figure from matplotlib.
+
+    Notes:
+        - This function will be called in the src.regression_model in multivariate_selection().
+    """
+    
+    fig, axs = plt.subplots(
+        int(result["Cluster"].max() / 3), 3, figsize = (20, 8),
+        sharex = True, sharey = True
+    )
+    axs = axs.ravel()
+    fig.suptitle("Multivariate analysis\n(Variables clustering)")
+    colorG = '#808080' #Set color theme --> Gray
+
+    clusters = sorted(result["Cluster"].unique())
+
+    for ax, cluster in zip(axs, clusters):
+        var_list = result.loc[result["Cluster"] == cluster, "Variable"].tolist()
+        pass_list = result.loc[(result["Cluster"] == cluster) & (result["pass"] == True), "Variable"].tolist()
+
+        data_z = zscore(X[var_list])
+        ax.plot(X.index, data_z, color = colorG, alpha = 0.5, linewidth = 0.5)
+        for pass_var in pass_list:
+            pass_z = zscore(X[pass_var])      
+            ax.plot(X.index, pass_z, linewidth = 2)
+
+        ax.set_yticklabels([f"{y:.4f}" for y in ax.get_yticks()])
+        ax.set_title(f"Cluster - {cluster}")
+
+    # Close un-used subplot
+    for ax in axs[len(clusters):]:
+        ax.set_visible(False)
+
+    fig.supylabel("Z-Score")
+    plt.tight_layout(rect = (0.01, 0, 1, 1))
+
+    return fig

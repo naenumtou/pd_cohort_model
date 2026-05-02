@@ -6,6 +6,7 @@ import statsmodels.api as sm
 
 from scipy.special import logit, expit
 from scipy.stats import norm, t
+from varclushi_opt import VarClusHi_Opt
 from joblib import Parallel, delayed
 from statsmodels.stats.diagnostic import spec_white
 from statsmodels.stats.stattools import durbin_watson

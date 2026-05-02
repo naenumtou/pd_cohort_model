@@ -5,7 +5,7 @@ import pickle
 import statsmodels.api as sm
 
 from scipy.special import logit, expit
-from scipy.stats import norm
+from scipy.stats import norm, t
 from joblib import Parallel, delayed
 from statsmodels.stats.diagnostic import spec_white
 from statsmodels.stats.stattools import durbin_watson

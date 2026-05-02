@@ -186,3 +186,118 @@ def mev_transformation(
     print(f"=== Result ===\nTotal MEV(s): {data.shape[1]}")
 
     return data, final_sign_transformed
+
+# Data preparation
+def prepare_training_set(
+    X: pd.DataFrame,
+    y: pd.DataFrame,
+    dep_col: str,
+    model_method: str,
+    outplot: bool = True
+) -> tuple[pd.DataFrame, pd.Series, None]:
+
+    """
+    Independence variables and dependence variable data preparation.
+
+    Description:
+        The monthly ODR(s) are converting to several forms of dependence variables.
+        For example, logit function for logit model, CF' (Standardized) for Vasicek model,
+        and CCI (Credit Cycle Index). The function is managed any missing values in
+        time series by;
+            1) Removed all consecutive periods of zero ODR that cannot model.
+            2) Filled with mean for any missing values in between timer series.
+        The function is also making a equal range of index for MEV(s) Data. Given the fact that
+        the dependence variable range is the key consideration for regression model, the MEV(s)
+        should be followed this range,
+
+    Args:
+        X (pd.DataFrame)    : The transformed MEV(s) Data.
+        y (pd.DataFrame)    : The dependence variable target data (ODR or CCI).
+        dep_col (str)       : Name of dependence variable column.
+        model_method (str)  : Name of the regression method. The function is computed;
+                            1) model_method = "Logit" --> logit = ln(ODR / (1 - ODR)).
+                            2) model_method = "CF" --> Inverse transformation of normal ODR.
+                               CF = np.ppf(ODR), then apply standardization by CF' = (CF - mean) / std
+                            3) model_method = "CCI" --> Dependence variable calcualted from CCI Method.
+                               Do not need to perform any computation here.
+        outplot (bool)      : Option for output plotting.
+
+    Returns:
+        pd.DataFrame    : The output of transformed MEV(s) equal range with dependence variable.
+        pd.Series       : The output of dependence variable for regression model.
+        Figure          : Showing figure from matplotlib.
+
+    Notes:
+        - The output parameters need to define either 3 or 2 depending on outplot option.
+        - If outplot = Ture --> output parameters will be 3.
+        - If outplot = False --> output parameters will be 2.
+    """    
+
+    print(f"=== Processing ===\n[Data preparation for {model_method} model]")
+
+    if model_method == "CCI":
+        y_data = y[dep_col] #CCI is estimated from another process
+        X_data = X.reindex(y_data.index) #Equal range to dependence variable
+        if outplot:
+            fig = plot_dep_var(y, y_data, model_method)
+            return X_data, y_data, fig
+        else:
+            return X_data, y_data
+    
+    else:
+
+        # Remove leading zeros dependence variable
+        # If any leading zeros will be removed for the series
+        mask = y[dep_col].ne(0)
+        y = y.loc[mask.cumsum().ne(0)][dep_col].copy()
+
+        # For any missing values in between series --> Fill with mean
+        mean_y = y[y != 0].mean()
+        y = y.replace(0, mean_y)
+        X_data = X.reindex(y.index) #Equal range to dependence variable
+
+        if model_method == "Logit":
+            y_data = logit(y) #Logit will preserve expit output range (0-1) as %PD
+            if outplot:
+                fig = plot_dep_var(y, y_data, model_method)
+                return X_data, y_data, fig
+            else:
+                return X_data, y_data
+
+        elif model_method == "CF":
+            cf = pd.Series(norm.ppf(y), index = y.index, name = y.name) #Convert to Cycle Factor (CF)
+
+            # For the Vasicek model, it needs standardization data to perform the regression model
+            # It will force the intercept (constant term) to be zero.
+            mean_cf = cf.mean()
+            std_cf = cf.std()
+            mean_X = X_data.mean()
+            std_X = X_data.std()
+
+            # Standardized data
+            y_data = (cf - mean_cf) / std_cf
+            X_data = (X_data - mean_X) / std_X
+
+            # Save standardized parameters     
+            stadardized_params = pd.DataFrame(
+                {
+                    "mean": mean_X,
+                    "std": std_X,
+                }
+            )
+            stadardized_params.loc["Dependence_Variable", ["mean", "std"]] = [mean_cf, std_cf] #Add CF parameters
+            stadardized_params.index.name = "Variables"
+            filename = "standardized_params"
+            stadardized_params.to_parquet(
+                f"../model/{filename}.parquet",
+                engine = 'pyarrow'
+                )
+
+            if outplot:
+                fig = plot_dep_var(y, y_data, model_method)
+                return X_data, y_data, fig
+            else:
+                return X_data, y_data
+
+        else:
+            return print("[WARN]: model_method must be 'Logit', 'CF' or 'CCI'")

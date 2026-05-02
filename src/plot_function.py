@@ -730,3 +730,64 @@ def plot_dep_var(
     plt.tight_layout()
     
     return fig
+
+# Plot univariate result
+def plot_univariate(
+    df: pd.DataFrame,
+    p_threshold: float,
+    r2_threshold: float
+) -> None:
+
+    """
+    Plot univariate result.
+
+    Description:
+        Showing the univariate analysis result by plotting R-Square against log10(p-value).
+        The red highlights of high R-Sqaure and p-value are shown the wrong intuitive sign.
+
+    Args:
+        df (pd.DataFrame)       : The summary table of univariate analysis.
+        p_threshold (float)     : p-value threshold.
+        r2_threshold (float)    : R-Square threshold.
+
+    Returns:
+        Figure: Showing figure from matplotlib.
+
+    Notes:
+        - This function will be called in the src.regression_model in single_regression().
+    """
+
+    palette = {
+        "Pass all 3": "#2ecc71",
+        "Wrong sign": "#e74c3c",
+        "R² ≤ 50%": "#f39c12",
+        "Not significant": "#95a5a6"
+    }
+    order = ["Not significant", "R² ≤ 50%", "Wrong sign", "Pass all 3"]
+    fig, ax = plt.subplots(figsize = (10, 6))
+    
+    for cat in order:
+        sub = df[df["category"] == cat]
+        ax.scatter(
+            sub["neg_log_p"], sub["r2"],
+            c = palette[cat], label = cat,
+            alpha = 0.6 if cat != "Pass all 3" else 1.0,
+            s = 18 if cat != "Pass all 3" else 30,
+            linewidths = 1
+        )
+
+    ax.axvline(
+        -np.log10(p_threshold), color = "Red", lw = 0.8,
+        ls = "--", alpha = 0.6, label = f"p = {p_threshold}"
+    )
+    ax.axhline(
+        r2_threshold, color = "Red", lw = 0.8,
+        ls = "--", alpha = 0.6, label = f"R² = {r2_threshold:.0%}"
+    )
+    ax.set_xlabel("-log10(p-value)")
+    ax.set_ylabel("R²")
+    ax.set_title("Univariate analysis\n(p-value and R² and Sign)")
+    ax.legend(frameon = True, facecolor = 'white', loc = "lower right")
+    plt.tight_layout()
+
+    return fig

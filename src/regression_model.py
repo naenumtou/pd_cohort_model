@@ -624,3 +624,144 @@ def get_combinations(
 
     return results
 
+# Multiple linear regression
+def run_fwl_model(
+    i,
+    combination: list,
+    X_train: pd.DataFrame,
+    y_train: pd.Series,
+    sign: pd.DataFrame,
+    model_method: str
+) -> tuple[str, callable, pd.DataFrame]:
+    
+    """
+    Multiple Linear Regression.
+
+    Description:
+        Multiple linear regression is widely used in the industry for predictive modelling.
+        The regression approach attempts to estimate the relationship between a dependence variable
+        and independence variables that can be defined as macroeconomics variables. For a model that
+        predictors having two or more independence variables, it is known as multiple linear regression.
+        In the context, we will attempt to model the relationship among two or more variables but limit
+        up to three and subsequently obtain prediction of the dependence variable.
+
+        The parameters for the multivariate model can be estimated through the ordinary least squares method.
+        The concept is to choose the values of the slope and the intercept, which has the minimum 'total distance'
+        from the data. Hence it attempts to estimate parameters b0 and b(i), which minimised the discrepancy
+        between any line and the observed data, to obtain a fitted regression line to be 'close' to all
+        observed data points.
+        
+    Args:
+        i (int)                 : The iteration number to define model name.
+        combination (list)      : The combinations for regression model.
+        X_train (pd.DataFrame)  : The transformed MEV(s) Data.
+        y_train (pd.Series)     : The dependence variable target data (Logit, CF or CCI).
+        sign (pd.DataFrame)     : The data of MEV(s) sign and group contained.
+        model_method (str)      : Name of the regression method. The function is computed;
+                                1) model_method = "Logit" --> %ODR vs %predicted ODR.
+                                2) model_method = "CF" --> Inverse CF and compute %ODR vs %predicted ODR.
+                                3) model_method = "CCI" --> CCI vs predicted CCI.
+
+    Returns:
+        str             : The model name.
+        callable        : The model object output from sm.OLS().fit().
+        pd.DataFrame    : The summary table contained all information during development. (For model selection).
+
+    Notes:
+        - The standardisation of these independent variables and dependent variable,
+        prescribes the resulting multiple linear regressions to have intercept is
+        equal to 0 or very closely approximating zero.
+    """
+
+    X_train_comb = sm.add_constant(X_train[combination], has_constant = "add")
+    model = sm.OLS(y_train, X_train_comb).fit()
+    
+    # Model parameters
+    model_key = f"MODEL_{i + 1}"
+    num_vars = len(model.params)
+    model_name = np.repeat(model_key, num_vars)
+    model_member = np.arange(1, num_vars + 1)
+    model_vars = np.array(model.params.index)
+    model_coefs = np.array(model.params)
+    p_values = np.array(model.pvalues)
+
+    # HAC Adjustment for overcome heteroscedasticity and auto correlation issues
+    lags = int(4 * (X_train_comb.shape[0] / 100) ** (2 / 9))
+    hac_model = model.get_robustcov_results(cov_type = "HAC", maxlags = lags)
+    hac_p_values = np.array(hac_model.pvalues)
+
+    # For CF Model, the data is Standardized. The intercept's coefficient will be zero or very close to zero
+    if model_method == "CF":
+        # Forced to zero of coefficient and p-value (OLS and HAC) for the calculation
+        model_coefs[0] = 0
+        p_values[0] = 0
+        hac_p_values[0] = 0
+
+    # VIF is equal to 1 if only 1 variable in the combination
+    # VIF of intercept is foreced to zero (in the function)
+    vif = np.repeat(1, num_vars) if len(combination) == 1 else np.array(vif_test(model.model.exog))
+
+    r2 = np.repeat(model.rsquared, num_vars)
+    adj_r2 = np.repeat(model.rsquared_adj, num_vars)
+    normal = np.repeat(and_dar_test(model.resid), num_vars)
+    heteros = np.repeat(spec_white(model.resid, model.model.exog)[1], num_vars)
+    auto_corr = np.repeat(durbin_watson(model.resid), num_vars)
+    station = np.repeat(adf_test(model.resid), num_vars)
+
+    # For CF Model, the data is Standardized. Need to import parameters for inverse calculation
+    if model_method == "CF":
+        # Import mean and std for inverse calculation
+        std_params = pd.read_parquet(
+            '../model/standardized_params.parquet',
+            engine = 'pyarrow'
+        )
+        mean = std_params.loc["Dependence_Variable", "mean"]
+        std = std_params.loc["Dependence_Variable", "std"]
+    else:
+        mean = None
+        std = None
+
+    # Back-testing
+    back_test = np.repeat(
+        back_testing(
+            X_train_comb, y_train,
+            model, model_method = model_method,
+            mean_cf = mean, std_cf = std
+        ),
+        num_vars
+    )
+
+    # Out sample testing
+    out_sample = np.repeat(
+        out_sample_test(
+            X_train_comb, y_train,
+            model_method = model_method,
+            mean_cf = mean, std_cf = std
+        ),
+        num_vars
+    )
+
+    # Full output results
+    summary = np.column_stack(
+        (
+            model_name, model_member, model_vars, model_coefs, p_values, hac_p_values,
+            vif, r2, adj_r2, normal, heteros, auto_corr, station, back_test, out_sample
+        )
+    )
+
+    # To DataFrame
+    summary = pd.DataFrame(
+        summary,
+        columns = [
+            "model_name", "model_member", "variable", "coefficient", "ols_p_value",
+            "hac_p_value", "vif", "r2", "adj_r2", "normality", "heteroscedasticity",
+            "auto_correlation", "stationary", "exceed_rate", "breach_rate"
+        ]
+    )
+
+    # Mapping with expected MEV(s) sign
+    sign_map = sign.set_index("mev")["sign"].to_dict()
+    summary["sign"] = summary["variable"].map(sign_map)
+    summary["sign"] = summary["sign"].fillna(0) #Fill 0 for intercept
+
+    return model_key, model, summary

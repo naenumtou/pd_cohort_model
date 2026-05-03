@@ -4,6 +4,8 @@ import pandas as pd
 import numpy as np
 
 from dateutil.relativedelta import relativedelta
+from scipy.stats import gamma
+from scipy.optimize import curve_fit
 
 warnings.simplefilter(action = 'ignore', category = pd.errors.PerformanceWarning)
 warnings.filterwarnings('ignore', category = RuntimeWarning)

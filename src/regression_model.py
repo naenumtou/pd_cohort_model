@@ -542,3 +542,82 @@ def multivariate_selection(
     else:
         fig = plot_cluster_timeseries(X, clsuter_df)
         return passed_vars, fig
+
+# All possible combinations
+def get_combinations(
+    data: list,
+    N: int
+) -> list:
+    
+    """
+    Variables combinations.
+
+    Description:
+        For the purpose of model development all possible combinations of variables in each
+        cluster will need to be assessed for model development. This will ensure an exhaustive
+        list of all possible models would be considered in order to generate the best possible model.
+
+        One combination must not contain variables from same cluster and must be difference
+        from variables group. One combination is capped maximum number of variables up to 3 variables.
+        This is to avoid multicollinearity issue in the multiple linear regression model.
+
+    Args:
+        data (list) : List of result from cluster analysis, containing variable, group, cluster number
+        N (int)     : Number of MEV(s) per combination needed.
+
+    Returns:
+        List: The possible combinations up to N variables with conditional.
+
+    Notes:
+        - N/A.
+    """
+    print(f"=== Processing ===\n[Possible combinations of {N} variable(s)]")
+    # Map cluster and subgroup to compact integers
+    cluster_id = {}
+    subgroup_id = {}
+    cid = sid = 0
+
+    encoded = []
+    for name, cluster, subgroup in data:
+        if cluster not in cluster_id:
+            cluster_id[cluster] = cid; cid += 1
+        if subgroup not in subgroup_id:
+            subgroup_id[subgroup] = sid; sid += 1
+
+        encoded.append((
+            name,
+            1 << cluster_id[cluster],   #Cluster bit
+            1 << subgroup_id[subgroup]  #Subgroup bit
+        ))
+
+    results = []
+    n_data = len(encoded)
+
+    def dfs(idx, k, comb, used_clusters, used_subgroups):
+        # Done
+        if k == 0:
+            results.append(comb.copy())
+            return
+
+        # Prune: not enough elements left
+        if idx == n_data or n_data - idx < k:
+            return
+
+        name, cbit, sbit = encoded[idx]
+
+        # Skip
+        dfs(idx + 1, k, comb, used_clusters, used_subgroups)
+
+        # Take (only if cluster & subgroup unused)
+        if not (used_clusters & cbit or used_subgroups & sbit):
+            comb.append(name)
+            dfs(idx + 1, k - 1, comb,
+                used_clusters | cbit,
+                used_subgroups | sbit)
+            comb.pop()
+
+    dfs(0, N, [], 0, 0)
+
+    print(f"    Number of combinations: {len(results)}")
+
+    return results

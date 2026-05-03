@@ -237,3 +237,87 @@ def vif_test(
     vif[0] = 0 #Intercept do not need to calculate VIF
 
     return vif
+
+# Anderson-Darling Test for residual normality
+def and_dar_test(
+    residual: pd.Series
+) -> float:
+    
+    """
+    Anderson-Darling Test for residual normality.
+
+    Description:
+        The Anderson-Darling test tests the null hypothesis that a sample is 
+        drawn from a population that follows a particular distribution, which is
+        a normal distribution in this case. The output from Scipy library returns
+        the Anderson-Darling test statistic not p-value when method is None.
+        
+        To derive the p-value follows the SAS Calculation logit, the paper of
+        R.B. D'Augostino and M.A. Stephens, Eds., 1986, Goodness-of-Fit Techniques, Marcel Dekker is leveraged.
+
+    Args:
+        residual (pd.Series): Model residual from statsmodels.
+
+    Returns:
+        Float: p-value follows SAS Calculation logic.
+
+    Notes:
+        - If the p-value is greater than (>) 0.05, the residual is followed normal distribution.
+        - If the p-value is less than or equal to (<=) 0.05, the model is not passed normality assumption.
+    """
+    
+    ad, _, _ = anderson(residual, dist = "norm",  method = None)
+    ad_adj = ad * (1 + (0.75 / residual.shape[0]) + 2.25 / (residual.shape[0] ** 2))
+
+    if ad_adj >= 0.6:
+        p_value = np.exp(1.2937 - 5.709 * ad_adj + 0.0186 * np.power(ad_adj, 2))
+    elif ad_adj >= 0.34:
+        p_value = np.exp(0.9177 - 4.279 * ad_adj - 1.38 * np.power(ad_adj, 2))
+    elif ad_adj > 0.2:
+        p_value = 1 - np.exp(-8.318 + 42.796 * ad_adj - 59.938 * np.power(ad_adj, 2))
+    else:
+        p_value = 1 - np.exp(-13.436 + 101.14 * ad_adj - 223.73 * np.power(ad_adj, 2))
+
+    return p_value
+
+# ADF Test for residual stationary (Co-integrated)
+def adf_test(
+    residual: pd.Series
+) -> float:
+    
+    """
+    Augmented Dickey-Fuller Test for residual stationary.
+
+    Description:
+        The time series model is generally required staionary variables in the model.
+        However, it might limit the comprehensive combination if selecting only stationary variables.
+
+        The Engle-Granger Cointegration methodology is leveraged two-stages regression as following.
+        First, assuming all independence variables are unit-root (non-stationary).
+        Second, using the linear combination of independence variables run regression.
+        Third, ADF testing on model residuals instead of each independence variables.
+        If the residuals are stationary, the independence variables are cointegrated.
+
+    Args:
+        residual (pd.Series): Model residual from statsmodels.
+
+    Returns:
+        Float: p-value.
+
+    Notes:
+        - If the p-value is less than or equal to (<=) 0.1, the residual is stationary.
+        - If the p-value is greater than (>) 0.1, the model is not passed normality assumption.
+        - The limitation of Engle-Granger Cointegration methodology:
+            - The cointegration result is appropriate for two variables. For multiple variables, the Johansen cointegration test is better.
+            - The method assumes a linear cointegrating relationship, which may not hold in all cases.
+            - The results can be sensitive to the choice of the dependent variable in the cointegrating regression.
+    """
+
+    _, p_value, _, _, _, _ = adfuller(
+        residual,
+        maxlag = None,
+        regression = "n", #No constant and No trend.
+        autolag = "AIC"
+    )
+
+    return p_value

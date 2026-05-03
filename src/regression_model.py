@@ -852,6 +852,7 @@ def select_models(
     """
 
     good_models = df.loc[mask, "model_name"].unique()
+    
     return (
         df[df["model_name"].isin(good_models)]
         .sort_values(["adj_r2", "model_name"], ascending = [False, False])

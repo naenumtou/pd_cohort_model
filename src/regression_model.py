@@ -52,7 +52,7 @@ def _expand_sign(
     return (
         sign_group
         .merge(pd.DataFrame({mev_col: base, "NEW": cols}), on = mev_col)
-        .assign(MEV = lambda x: x["NEW"])
+        .assign(mev_col = lambda x: x["NEW"])
         .drop(columns = "NEW")
     )
 

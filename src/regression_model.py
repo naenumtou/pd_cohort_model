@@ -253,7 +253,7 @@ def prepare_training_set(
                             1) model_method = "Logit" --> logit = ln(ODR / (1 - ODR)).
                             2) model_method = "CF" --> Inverse transformation of normal ODR.
                                CF = np.ppf(ODR), then apply standardization by CF' = (CF - mean) / std
-                            3) model_method = "CCI" --> Dependence variable calcualted from CCI Method.
+                            3) model_method = "CCI" --> Dependence variable calculated from CCI Method.
                                Do not need to perform any computation here.
         outplot (bool)      : Option for output plotting.
 

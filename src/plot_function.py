@@ -6,6 +6,9 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import seaborn as sns
 
+from scipy.stats import zscore, norm
+from scipy.special import expit
+
 # Helper function
 def _extract_for_plot(
     key_tuple: tuple

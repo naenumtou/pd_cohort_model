@@ -353,7 +353,9 @@ def back_testing(
                                 2) model_method = "CF" --> Inverse CF and compute %ODR vs %predicted ODR.
                                 3) model_method = "CCI" --> CCI vs predicted CCI.
         mean_cf (float, None)   : Mean of CF to inverse calculation for CF Model.
+                                If None, for CCI and Logit models.
         std_cf (float, None)    : Standard deviation of CF to inverse calculation for CF Model.
+                                If None, for CCI and Logit models.
 
     Returns:
         Float: Exceed rate.
@@ -409,7 +411,9 @@ def out_sample_test(
                                 2) model_method = "CF" --> Inverse CF and compute %ODR vs %predicted ODR.
                                 3) model_method = "CCI" --> CCI vs predicted CCI.
         mean_cf (float, None)   : Mean of CF to inverse calculation for CF Model.
+                                If None, for CCI and Logit models.
         std_cf (float, None)    : Standard deviation of CF to inverse calculation for CF Model.
+                                If None, for CCI and Logit models.
 
     Returns:
         Float: Exceed rate.

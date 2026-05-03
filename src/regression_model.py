@@ -764,3 +764,58 @@ def run_fwl_model(
     summary["sign"] = summary["sign"].fillna(0) #Fill 0 for intercept
 
     return model_key, model, summary
+
+# Model selection
+def mask_selection(
+    df: pd.DataFrame,
+    p_col: str,
+    threshold: dict
+) -> bool:
+
+    """
+    Mask all passed in the common linear assumptions.
+
+    Description:
+    The multiple linear regression models are tested for statistical model misspecification
+    with the assumptions of a linear regression model. There are 6 statistical analyses
+    will be applied prior concluded the final forward-looking model.
+        1. p-value significant          : The p-values of coefficients are < 0.05.
+        2. Multicollinearity            : Independent variables are not strongly linearly related. VIF(s) < 5.
+        3. Residual normality           : Residuals follow a normal distribution.
+                                        The Anderson-Darling test of p-value > 0.05.
+        4. Residual homoscedasticity    : Variance of residuals is independent of the fitted value.
+                                        The White test of p-value > 0.05.
+        5. Residual autocorrelation     : Residuals are not autocorrelated.
+                                        The Durbin Watson test significance of variables between (1 - 3).
+        6. Residual stationary          : The Co-integration is implying residuals are stationary.
+                                        The Augmented Dickey-Fuller test of p-value < 0.1.
+        
+    Args:
+        df (pd.DataFrame)   : The summary table contained all information during development.
+        p_col (str)         : Name of p-values column. Either OLS or HAC.
+        threshold (dict)    : The pre-set threshold for model misspecification.
+
+    Returns:
+        bool: Masked boolean.
+
+    Notes:
+        - The robust model of Heteroscedasticity and Autocorrelation robust Covariance matrix (Newey-West),
+        named HAC Model has been performed to overcome residual homoscedasticity and residual autocorrelation issues.
+        By performing robust HAC Model, the candidate models are allowed for residual homoscedasticity
+        and residual autocorrelation assumption.
+    """
+
+    return (
+        (df[p_col] < threshold["p_value"]) &
+        (df["vif"] < threshold["vif"]) &
+        (df["r2"] >= threshold["r2"]) &
+        (df["adj_r2"] >= threshold["adj_r2"]) &
+        (df["normality"] > threshold["normality"]) &
+        (df["stationary"] <= threshold["stationary"]) &
+        (df["exceed_rate"] <= threshold["exceed_rate"]) &
+        (df["breach_rate"] <= threshold["breach_rate"]) &
+        (
+            (df["sign"] == 0) |
+            (df["sign"] / df["coefficient"] > 0)
+        )
+    )

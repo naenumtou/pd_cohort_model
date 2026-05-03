@@ -2,10 +2,12 @@
 import warnings
 import pandas as pd
 import numpy as np
+import statsmodels.api as sm
 
 from statsmodels.stats.outliers_influence import variance_inflation_factor
-from scipy.stats import anderson
+from scipy.stats import anderson, norm
 from statsmodels.tsa.stattools import adfuller
+from scipy.special import expit
 
 warnings.simplefilter(action = 'ignore', category = pd.errors.PerformanceWarning)
 warnings.filterwarnings('ignore', category = RuntimeWarning)
@@ -321,3 +323,131 @@ def adf_test(
     )
 
     return p_value
+
+# Back-testing
+def back_testing(
+    X_train: pd.DataFrame,
+    y_train: pd.Series,
+    model: callable,
+    model_method: str,
+    mean_cf: float = None,
+    std_cf: float = None
+) -> float:
+    
+    """
+    In-sample back-testing.
+
+    Description:
+        The In-sample back-testing or exceed rate evaluates model performance on observations
+        that are used to develop the model by comparing values predicted by the model to
+        historical values. By calculating prediction intervals at 95% confidence level,
+        analysing discrepancies between the actual and prediction. Higher incidence of
+        discrepancies does not necessarily mean the model should be rejected.
+
+    Args:
+        X_train (pd.DataFrame)  : The transformed MEV(s) Data.
+        y_train (pd.Series)     : The dependence variable target data (Logit, CF or CCI).
+        model (callable)        : The tranined regression model.
+        model_method (str)      : Name of the regression method. The function is computed;
+                                1) model_method = "Logit" --> %ODR vs %predicted ODR.
+                                2) model_method = "CF" --> Inverse CF and compute %ODR vs %predicted ODR.
+                                3) model_method = "CCI" --> CCI vs predicted CCI.
+        mean_cf (float, None)   : Mean of CF to inverse calculation for CF Model.
+        std_cf (float, None)    : Standard deviation of CF to inverse calculation for CF Model.
+
+    Returns:
+        Float: Exceed rate.
+
+    Notes:
+        - N/A.
+    """
+
+    if model_method == "CCI":
+        y_pred = model.predict(X_train)
+        y_true = y_train.copy()
+
+    if model_method == "Logit":
+        y_pred = expit(model.predict(X_train))
+        y_true = expit(y_train)
+
+    if model_method == "CF":
+        y_pred = pd.Series(norm.cdf((model.predict(X_train)) * std_cf + mean_cf))
+        y_true = pd.Series(norm.cdf(y_train * std_cf + mean_cf))
+
+    sd = y_pred.std()
+    upper = y_pred + 2 * sd
+    lower = y_pred - 2 * sd
+    exceed_rate = (y_true.lt(lower).sum() + y_true.gt(upper).sum()) / len(y_true)
+    
+    return exceed_rate
+
+# Out-sample testing
+def out_sample_test(
+    X_train: pd.DataFrame,
+    y_train: pd.Series,
+    model_method: str,
+    mean_cf: float = None,
+    std_cf: float = None
+) -> float:
+
+    """
+    Out-sample back-testing.
+
+    Description:
+        For the out-of-sample testing or breach rate, a rolling windows approach was leveraged.
+        The rolling window segregates the data into training sample and testing sample, with the observations
+        are in the rolling window used as the training sample. The model with the selected variables is then
+        re-fitting on the training sample and its performance is evaluated on the testing sample by calculating
+        prediction intervals at 95% and analysing discrepancies.
+
+    Args:
+        X_train (pd.DataFrame)  : The transformed MEV(s) Data.
+        y_train (pd.Series)     : The dependence variable target data (Logit, CF or CCI).
+        model (callable)        : The tranined regression model.
+        model_method (str)      : Name of the regression method. The function is computed;
+                                1) model_method = "Logit" --> %ODR vs %predicted ODR.
+                                2) model_method = "CF" --> Inverse CF and compute %ODR vs %predicted ODR.
+                                3) model_method = "CCI" --> CCI vs predicted CCI.
+        mean_cf (float, None)   : Mean of CF to inverse calculation for CF Model.
+        std_cf (float, None)    : Standard deviation of CF to inverse calculation for CF Model.
+
+    Returns:
+        Float: Exceed rate.
+
+    Notes:
+        - N/A.
+    """
+
+    size = len(X_train)
+    sample_size = int(size / 2)
+    train_size = int(sample_size / 2)
+    test_size = int(sample_size / 2)
+    steps = train_size + test_size
+
+    breach = []
+    for i in range(train_size, size, steps):
+        X_train_sample, X_test_sample = X_train.iloc[i - train_size:i], X_train.iloc[i:i + test_size]
+        y_train_sample, y_test_sample = y_train.iloc[i - train_size:i], y_train.iloc[i:i + test_size]
+
+        #Re-fitting model with the same combination but different periods
+        model = sm.OLS(y_train_sample, X_train_sample).fit() #Do not need to constant --> already had in data
+
+        if model_method == "CCI":
+            y_pred = model.predict(X_test_sample)
+            y_true = y_test_sample.copy()
+
+        if model_method == "Logit":
+            y_pred = expit(model.predict(X_test_sample))
+            y_true = expit(y_test_sample)
+
+        if model_method == "CF":
+            y_pred = pd.Series(norm.cdf((model.predict(X_test_sample)) * std_cf + mean_cf))
+            y_true = pd.Series(norm.cdf(y_test_sample * std_cf + mean_cf))
+
+        sd = y_pred.std()
+        upper = y_pred + 2 * sd
+        lower = y_pred - 2 * sd
+        breach.append(y_true.lt(lower).sum() + y_true.gt(upper).sum())
+    breach_total = sum(breach)
+
+    return breach_total / (test_size * sample_size)

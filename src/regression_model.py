@@ -411,7 +411,7 @@ def single_regression(
     # To DataFrame
     results = pd.DataFrame(
         {
-            "MEV": X.columns,
+            "mev": X.columns,
             "coefficient": coff,
             "p_value": p_values,
             "r2": r2

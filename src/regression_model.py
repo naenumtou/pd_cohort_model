@@ -411,7 +411,7 @@ def single_regression(
     # To DataFrame
     results = pd.DataFrame(
         {
-            "mev": X.columns,
+            mev_col: X.columns,
             "coefficient": coff,
             "p_value": p_values,
             "r2": r2
@@ -419,7 +419,7 @@ def single_regression(
     )
     
     results[sign_col] = results[mev_col].map(sign_map)
-    results["Pass"] = passed
+    results["pass"] = passed
     passed_vars = results.loc[passed, mev_col].tolist()
 
     print(f"=== Result ===\nNumber of passed variables: {len(passed_vars)}")

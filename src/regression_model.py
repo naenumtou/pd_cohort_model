@@ -788,7 +788,7 @@ def mask_selection(
         5. Residual autocorrelation     : Residuals are not autocorrelated.
                                         The Durbin Watson test significance of variables between (1 - 3).
         6. Residual stationary          : The Co-integration is implying residuals are stationary.
-                                        The Augmented Dickey-Fuller test of p-value < 0.1.
+                                        The Augmented Dickey-Fuller test of p-value <= 0.1.
         
     Args:
         df (pd.DataFrame)   : The summary table contained all information during development.

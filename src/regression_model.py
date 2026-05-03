@@ -571,7 +571,9 @@ def get_combinations(
     Notes:
         - N/A.
     """
+    
     print(f"=== Processing ===\n[Possible combinations of {N} variable(s)]")
+    
     # Map cluster and subgroup to compact integers
     cluster_id = {}
     subgroup_id = {}

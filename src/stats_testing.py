@@ -3,6 +3,10 @@ import warnings
 import pandas as pd
 import numpy as np
 
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+from scipy.stats import anderson
+from statsmodels.tsa.stattools import adfuller
+
 warnings.simplefilter(action = 'ignore', category = pd.errors.PerformanceWarning)
 warnings.filterwarnings('ignore', category = RuntimeWarning)
 warnings.filterwarnings('ignore', category = UserWarning)
@@ -199,3 +203,37 @@ def lifetime_ks(
         print(f"    [✓] Pool {i}: Segment - {pool}")
     
     return ks_results
+
+# VIF Test for multicollinearity of independence variables
+def vif_test(
+    x: np.array
+) -> list:
+
+    """
+    Variance Inflation Factor (VIF) for multicollinearity.
+
+    Description:
+        In modelling development, multicollinearity is a phenomenon in which two or more predictor variables
+        in a multiple regression model are highly correlated, meaning that one can be linearly predicted
+        from the others with a substantial degree of accuracy.
+        
+        The Variance Inflation Factor (VIF) computation is used to depict the existence of multicollinearity
+        (correlation between independence variables) in a regression analysis. The VIF quantifies how much
+        the variance of the estimated regression coefficients are inflated as compared to when the predictor
+        variables are not linearly related.
+
+    Args:
+        x (np.arrat): Input data of independence variables MEV(s) in the model.
+
+    Returns:
+        List: List of VIF on each independence variables MEV(s) in the model.
+
+    Notes:
+        - If the VIF is less than (<) 5, the model is passed multicollinearity assumption.
+        - If the VIF is greater than or equal to (>=) 5, the model is not passed multicollinearity assumption.
+    """
+
+    vif = [variance_inflation_factor(x, i) for i in range(x.shape[1])]
+    vif[0] = 0 #Intercept do not need to calculate VIF
+
+    return vif

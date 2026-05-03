@@ -804,6 +804,13 @@ def mask_selection(
         By performing robust HAC Model, the candidate models are allowed for residual homoscedasticity
         and residual autocorrelation assumption.
     """
+    
+    sign_ratio = np.divide(
+        df["sign"],
+        df["coefficient"],
+        out = np.zeros_like(df["sign"], dtype = float),
+        where = df["coefficient"] != 0
+    )
 
     return (
         (df[p_col] < threshold["p_value"]) &
@@ -816,7 +823,7 @@ def mask_selection(
         (df["breach_rate"] <= threshold["breach_rate"]) &
         (
             (df["sign"] == 0) |
-            (df["sign"] / df["coefficient"] > 0)
+            (sign_ratio > 0)
         )
     )
 

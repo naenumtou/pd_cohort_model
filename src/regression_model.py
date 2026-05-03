@@ -562,7 +562,7 @@ def get_combinations(
         This is to avoid multicollinearity issue in the multiple linear regression model.
 
     Args:
-        data (list) : List of result from cluster analysis, containing variable, group, cluster number
+        data (list) : List of result from cluster analysis, containing variable, group, cluster number.
         N (int)     : Number of MEV(s) per combination needed.
 
     Returns:
@@ -623,3 +623,4 @@ def get_combinations(
     print(f"    Number of combinations: {len(results)}")
 
     return results
+

@@ -819,3 +819,33 @@ def mask_selection(
             (df["sign"] / df["coefficient"] > 0)
         )
     )
+
+# Model selector
+def select_models(
+    df: pd.DataFrame,
+    mask: bool
+) -> pd.DataFrame:
+    
+
+    """
+    Selecting all passed models.
+
+    Description:
+        The model that passed all model assumpti0ons is selected as candidate models.
+        
+    Args:
+        df (pd.DataFrame)   : The summary table contained all information during development.
+        mask (bool)         : Mask boolean that all passed model.
+
+    Returns:
+        pd.DataFrame: Candidate models that passed all linear model assumptions.
+
+    Notes:
+        - N/A.
+    """
+
+    good_models = df.loc[mask, "model_name"].unique()
+    return (
+        df[df["model_name"].isin(good_models)]
+        .sort_values(["adj_r2", "model_name"], ascending = [False, False])
+    )

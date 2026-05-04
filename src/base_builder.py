@@ -146,11 +146,11 @@ def _dev_factor(
 
 # Gamma CDF Function
 def _gamma_cdf(
-    x: np.array,
+    x: np.ndarray,
     alpha: float,
     beta: float,
     constant: float
-) -> np.array:
+) -> np.ndarray:
     
     """
     Gamma cumulative distribution function.
@@ -165,13 +165,13 @@ def _gamma_cdf(
                Thus, by adding the control parameter will proivde more stable fitting results.
 
     Args:
-        x (np.array)        : The input for fitting (Chain-Ladder cumulative lifetime ODR).
+        x (np.ndarray)      : The input for fitting (Chain-Ladder cumulative lifetime ODR).
         alpha (float)       : Shape parameter.
         beta (float)        : Scale parameter.
         constant (float)    : Control parameter.
 
     Returns:
-        np.array: Fitted output from Gamma CDF Function.
+        np.ndarray: Fitted output from Gamma CDF Function.
 
     Notes:
         - N/A.
@@ -181,10 +181,10 @@ def _gamma_cdf(
 
 # Unbias calibration with odds function
 def _odds_calibration(
-    ttc: np.array,
+    ttc: np.ndarray,
     odr_12_unbias: float,
     odr_level: str = "Yearly"
-) -> np.array:
+) -> np.ndarray:
     
     """
     Odds calibration function for unbias.
@@ -195,12 +195,12 @@ def _odds_calibration(
         it will remain the same shape for segmentation level and the lifetime pool level.
 
     Args:
-        ttc (np.array)          : The input for calibration (Gamma cumulative lifetime ODR).
+        ttc (np.ndarray)        : The input for calibration (Gamma cumulative lifetime ODR).
         odr_12_unbias (float)   : The 12-months unbias ODR.
         odr_level (str)         : The level of calculated lifetime ODR. Default = "Yearly".
 
     Returns:
-        np.array: Fitted output from odds calibration formula.
+        np.ndarray: Fitted output from odds calibration formula.
 
     Notes:
         - The ODR Level MUST consist with the inital level of development.
@@ -391,8 +391,8 @@ def segment_weighted_avg(
 
     Returns:
         Dictionary: Keys are segmentation name corresponding to the pool.
-                    Values are np.array contained weighted average lifetime ODR of cohort for a corresponding to the pool.
-                    {keys: values} --> {pool (tuple , str): ODR (np.array)}
+                    Values are np.ndarray contained weighted average lifetime ODR of cohort for a corresponding to the pool.
+                    {keys: values} --> {pool (tuple , str): ODR (np.ndarray)}
 
     Notes:
         - N/A.
@@ -422,8 +422,8 @@ def gamma_fitting(
 
     Args:
         data (dictionary)    : Input dictionary. Keys are segmentation name corresponding to the pool.
-                               Values are np.array contained weighted average lifetime ODR.
-                               {keys: values} --> {pool (tuple , str): ODR (np.array)}
+                               Values are np.ndarray contained weighted average lifetime ODR.
+                               {keys: values} --> {pool (tuple , str): ODR (np.ndarray)}
         n (int)              : Times (Number of months or years) for extrapolation with Gamma parameters.
         odr_level (str)      : The level to be calculate ODR as the times tracking. Default = "Yearly".
                              If there is suffcient of historical data, yearly or monthly basis are appropriate.
@@ -431,11 +431,11 @@ def gamma_fitting(
 
     Returns:
         Dictionary: Keys are segmentation name corresponding to the pool.
-                    Values are np.array contained fitted lifetime ODR for a corresponding to the pool.
-                    {keys: values} --> {pool (tuple , str): ODR (np.array)}
+                    Values are np.ndarray contained fitted lifetime ODR for a corresponding to the pool.
+                    {keys: values} --> {pool (tuple , str): ODR (np.ndarray)}
         Dictionary: Keys are segmentation name corresponding to the pool.
                     Values are fitted parameters from Gamma cumulative distribution function.
-                    {keys: values} --> {pool (tuple , str): parameters (np.array: --> [Alpha, Beta, Constant])}
+                    {keys: values} --> {pool (tuple , str): parameters (np.ndarray: --> [Alpha, Beta, Constant])}
 
     Notes:
         - The ODR Level MUST consist with the inital level of development.
@@ -503,7 +503,7 @@ def unbias_calibration(
                     {keys: values} --> {
                                         segment (str): Unbias calibration results (dict) --> {
                                                                                               "n": int,
-                                                                                              "Unbias": np.array,
+                                                                                              "Unbias": np.ndarray,
                                                                                              }
                                         }
 

@@ -131,5 +131,16 @@ def mar_to_con(
         - The first year of conditional PD is equal to cumulative PD and marginal PD.
     """
 
-    cum_shift = np.concatenate(([0], np.cumsum(mar)[:-1]))
+    # Function to support 1D array or 2D array
+    if mar.ndim == 1:
+        cum_shift = np.concatenate(([0], np.cumsum(mar)[:-1]))
+    elif mar.ndim == 2:
+        cum = np.cumsum(mar, axis = 1)
+        cum_shift = np.concatenate(
+            [np.zeros((mar.shape[0], 1)), cum[:, :-1]],
+            axis = 1
+        )
+    else:
+        print("[WARN]: Only 1D or 2D arrays supported")
+        
     return mar / (1 - cum_shift)

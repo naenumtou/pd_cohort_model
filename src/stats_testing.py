@@ -235,8 +235,12 @@ def vif_test(
         - If the VIF is greater than or equal to (>=) 5, the model is not passed multicollinearity assumption.
     """
 
-    vif = [variance_inflation_factor(x, i) for i in range(x.shape[1])]
-    vif[0] = 0 #Intercept do not need to calculate VIF
+    # VIF is equal to 1 if only 1 variable in the combination
+    if x.shape[1] == 1:
+        vif = [0, 1]
+    else:
+        vif = [variance_inflation_factor(x, i) for i in range(x.shape[1])]
+        vif[0] = 0 #Intercept do not need to calculate VIF
 
     return vif
 

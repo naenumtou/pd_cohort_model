@@ -630,7 +630,9 @@ def run_fwl_model(
     X_train: pd.DataFrame,
     y_train: pd.Series,
     sign: pd.DataFrame,
-    model_method: str
+    model_method: str,
+    config_threhold: dict,
+    std_params: pd.DataFrame = None    
 ) -> tuple[str, callable, pd.DataFrame]:
     
     """
@@ -651,15 +653,17 @@ def run_fwl_model(
         observed data points.
         
     Args:
-        i (int)                 : The iteration number to define model name.
-        combination (list)      : The combinations for regression model.
-        X_train (pd.DataFrame)  : The transformed MEV(s) Data.
-        y_train (pd.Series)     : The dependence variable target data (Logit, CF or CCI).
-        sign (pd.DataFrame)     : The data of MEV(s) sign and group contained.
-        model_method (str)      : Name of the regression method. The function is computed;
-                                1) model_method = "Logit" --> %ODR vs %predicted ODR.
-                                2) model_method = "CF" --> Inverse CF and compute %ODR vs %predicted ODR.
-                                3) model_method = "CCI" --> CCI vs predicted CCI.
+        i (int)                     : The iteration number to define model name.
+        combination (list)          : The combinations for regression model.
+        X_train (pd.DataFrame)      : The transformed MEV(s) Data.
+        y_train (pd.Series)         : The dependence variable target data (Logit, CF or CCI).
+        sign (pd.DataFrame)         : The data of MEV(s) sign and group contained.
+        model_method (str)          : Name of the regression method. The function is computed;
+                                    1) model_method = "Logit" --> %ODR vs %predicted ODR.
+                                    2) model_method = "CF" --> Inverse CF and compute %ODR vs %predicted ODR.
+                                    3) model_method = "CCI" --> CCI vs predicted CCI.
+        config_threhold (dict)      : The pre-set threshold for model misspecification.
+        std_params (pd.DataFrame)   : The data tabel contained standardisation parameters.
 
     Returns:
         str             : The model name.
@@ -675,6 +679,42 @@ def run_fwl_model(
     X_train_comb = sm.add_constant(X_train[combination], has_constant = "add")
     model = sm.OLS(y_train, X_train_comb).fit()
     
+    # Check assumptions for reduce calculation
+    # p-value
+    p_values = np.array(model.pvalues)
+    if model_method == "CF":
+        p_values[0] = 0
+    if np.any(p_values > config_threhold["p_value"]):
+        return None, None, None
+    
+    # Adjusted R-Square
+    if model.rsquared_adj < config_threhold["adj_r2"]:
+        return None, None, None
+    
+    # Normaility
+    if and_dar_test(model.resid) <= config_threhold["normality"]:
+        return None, None, None
+
+    # Staionary
+    if adf_test(model.resid) > config_threhold["stationary"]:
+        return None, None, None
+    
+    # VIF
+    vif = np.array(vif_test(model.model.exog))
+    if np.any(vif >= config_threhold["vif"]):
+        return None, None, None
+
+    # HAC Adjustment for overcome heteroscedasticity and auto correlation issues
+    lags = int(4 * (X_train_comb.shape[0] / 100) ** (2 / 9))
+    hac_model = model.get_robustcov_results(cov_type = "HAC", maxlags = lags)
+    hac_p_values = np.array(hac_model.pvalues)
+    if model_method == "CF":
+        hac_p_values[0] = 0
+
+    if np.any(hac_p_values > config_threhold["p_value"]):
+        return None, None, None
+
+    # If passed all --> Full calculation
     # Model parameters
     model_key = f"MODEL_{i + 1}"
     num_vars = len(model.params)
@@ -682,23 +722,10 @@ def run_fwl_model(
     model_member = np.arange(1, num_vars + 1)
     model_vars = np.array(model.params.index)
     model_coefs = np.array(model.params)
-    p_values = np.array(model.pvalues)
-
-    # HAC Adjustment for overcome heteroscedasticity and auto correlation issues
-    lags = int(4 * (X_train_comb.shape[0] / 100) ** (2 / 9))
-    hac_model = model.get_robustcov_results(cov_type = "HAC", maxlags = lags)
-    hac_p_values = np.array(hac_model.pvalues)
-
+    
     # For CF Model, the data is Standardized. The intercept's coefficient will be zero or very close to zero
     if model_method == "CF":
-        # Forced to zero of coefficient and p-value (OLS and HAC) for the calculation
         model_coefs[0] = 0
-        p_values[0] = 0
-        hac_p_values[0] = 0
-
-    # VIF is equal to 1 if only 1 variable in the combination
-    # VIF of intercept is foreced to zero (in the function)
-    vif = np.repeat(1, num_vars) if len(combination) == 1 else np.array(vif_test(model.model.exog))
 
     r2 = np.repeat(model.rsquared, num_vars)
     adj_r2 = np.repeat(model.rsquared_adj, num_vars)
@@ -709,16 +736,10 @@ def run_fwl_model(
 
     # For CF Model, the data is Standardized. Need to import parameters for inverse calculation
     if model_method == "CF":
-        # Import mean and std for inverse calculation
-        std_params = pd.read_parquet(
-            '../model/standardized_params.parquet',
-            engine = 'pyarrow'
-        )
         mean = std_params.loc["Dependence_Variable", "mean"]
         std = std_params.loc["Dependence_Variable", "std"]
     else:
-        mean = None
-        std = None
+        mean = std = None
 
     # Back-testing
     back_test = np.repeat(
@@ -754,7 +775,7 @@ def run_fwl_model(
         columns = [
             "model_name", "model_member", "variable", "coefficient", "ols_p_value",
             "hac_p_value", "vif", "r2", "adj_r2", "normality", "heteroscedasticity",
-            "auto_correlation", "stationary", "exceed_rate", "breach_rate"
+            "autocorrelation", "stationary", "exceed_rate", "breach_rate"
         ]
     )
 
@@ -762,6 +783,11 @@ def run_fwl_model(
     sign_map = sign.set_index("mev")["sign"].to_dict()
     summary["sign"] = summary["variable"].map(sign_map)
     summary["sign"] = summary["sign"].fillna(0) #Fill 0 for intercept
+
+    # To float Dtypes
+    idx = summary.columns.get_loc("coefficient")
+    for col in summary.columns[idx:]:
+        summary[col] = pd.to_numeric(summary[col], errors = "coerce")
 
     return model_key, model, summary
 

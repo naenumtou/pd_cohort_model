@@ -18,7 +18,7 @@ def _bound_bucket(
     n: int,
     start: float,
     diff_odr: float,
-) -> tuple[np.array, np.array]:
+) -> tuple[np.ndarray, np.ndarray]:
     
     """
     Create buckting for KS-Test.
@@ -37,8 +37,8 @@ def _bound_bucket(
         diff_odr (float)    : The difference value computing from (largest odr - smallest odr) / (n - 2).
 
     Returns:
-        np.array: The maximum bucket (upper bounds).
-        np.array: The minimum bucket (lower bounds).
+        np.ndarray: The maximum bucket (upper bounds).
+        np.ndarray: The minimum bucket (lower bounds).
 
     Notes:
         - N/A.
@@ -122,10 +122,10 @@ def lifetime_ks(
     Args:
         actual (dict)   : Input dictionary. Keys are segmentation name corresponding to the pool.
                           Values are pd.DataFrame contained imputed with weighted Chain-Ladder triangle table (Not run-off).
-                          {keys: values} --> {pool (tuple , str): ODR (np.array)}
+                          {keys: values} --> {pool (tuple , str): ODR (np.ndarray)}
         fitted (dict)   : Input dictionary. Keys are segmentation name corresponding to the pool.
                           Values are pd.DataFrame contained fitted lifetime ODR.
-                          {keys: values} --> {pool (tuple , str): ODR (np.array)}
+                          {keys: values} --> {pool (tuple , str): ODR (np.ndarray)}
 
     Returns:
         Dictionary: Keys are segmentation name corresponding to the pool.
@@ -208,7 +208,7 @@ def lifetime_ks(
 
 # VIF Test for multicollinearity of independence variables
 def vif_test(
-    x: np.array
+    x: np.ndarray
 ) -> list:
 
     """
@@ -225,7 +225,7 @@ def vif_test(
         variables are not linearly related.
 
     Args:
-        x (np.arrat): Input data of independence variables MEV(s) in the model.
+        x (np.ndarray): Input data of independence variables MEV(s) in the model.
 
     Returns:
         List: List of VIF on each independence variables MEV(s) in the model.

@@ -528,7 +528,7 @@ def plot_lifetime_avg(
 
     Args:
         data (dict)         : The dictionary contains cumulative lifetime ODR.
-                            {keys: values} --> {pool (tuple , str): ODR (np.array)}
+                            {keys: values} --> {pool (tuple , str): ODR (np.ndarray)}
         plot_title (str)    : Name of the plot.
 
     Returns:
@@ -567,9 +567,9 @@ def plot_lifetime_comp(
 
     Args:
         actual (dict)       : The dictionary contains weighted average cumulative lifetime ODR.
-                            {keys: values} --> {pool (tuple , str): ODR (np.array)}
+                            {keys: values} --> {pool (tuple , str): ODR (np.ndarray)}
         fitted (dict)       : The dictionary contains fitted cumulative lifetime ODR.
-                            {keys: values} --> {pool (tuple , str): ODR (np.array)}
+                            {keys: values} --> {pool (tuple , str): ODR (np.ndarray)}
         plot_title (str)    : Name of the plot.
 
     Returns:
@@ -636,13 +636,13 @@ def plot_unbias_lifetime(
 
     Args:
         fitted (dict)       : The dictionary contains fitted cumulative lifetime ODR.
-                            {keys: values} --> {pool (tuple , str): ODR (np.array)}
+                            {keys: values} --> {pool (tuple , str): ODR (np.ndarray)}
         unbias (dict)       : Keys are segmentation name corresponding to the pool.
                             Values are unbias calibration results
                             {keys: values} --> {
                                                 segment (str): Unbias calibration results (dict) --> {
                                                                                                       "n": int,
-                                                                                                      "Unbias": np.array,
+                                                                                                      "Unbias": np.ndarray,
                                                                                                       }
                                                 }
         plot_title (str)    : Name of the plot.

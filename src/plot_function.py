@@ -856,7 +856,8 @@ def plot_backtest(
     y_train: pd.Series,
     model: dict,
     model_name: str,
-    model_method: str
+    model_method: str,
+    std_params: pd.DataFrame = None
 ) -> None:
     
     """
@@ -866,16 +867,17 @@ def plot_backtest(
         Showing the historical time series between actual and predicted from the model.
 
     Args:
-        y_train (pd.Series) : The dependence variable target data (Logit, CF or CCI).
-        model (dict)        : The dictionary of all candidate models.
-                            Keys are the candidate models name.
-                            Values are trained model output from sm.OLS().fit().
-                            {keys: values} --> {str: callable}
-        model_name (str)    : The random model name for showing the back-testing.
-        model_method (str)  : Name of the regression method. The function is plotted;
-                            1) model_method = "Logit" --> %ODR vs %predicted ODR.
-                            2) model_method = "CF" --> Inverse CF and compute %ODR vs %predicted ODR.
-                            3) model_method = "CCI" --> CCI vs predicted CCI.
+        y_train (pd.Series)         : The dependence variable target data (Logit, CF or CCI).
+        model (dict)                : The dictionary of all candidate models.
+                                    Keys are the candidate models name.
+                                    Values are trained model output from sm.OLS().fit().
+                                    {keys: values} --> {str: callable}
+        model_name (str)            : The random model name for showing the back-testing.
+        model_method (str)          : Name of the regression method. The function is plotted;
+                                    1) model_method = "Logit" --> %ODR vs %predicted ODR.
+                                    2) model_method = "CF" --> Inverse CF and compute %ODR vs %predicted ODR.
+                                    3) model_method = "CCI" --> CCI vs predicted CCI.
+        std_params (pd.DataFrame)   : The data tabel contained standardisation parameters.
 
     Returns:
         Figure: Showing figure from matplotlib.
@@ -896,12 +898,6 @@ def plot_backtest(
         y_true = expit(y_train)
 
     if model_method == "CF":
-
-        # Import mean and std for inverse calculation
-        std_params = pd.read_parquet(
-            '../model/standardized_params.parquet',
-            engine = 'pyarrow'
-        )
         mean = std_params.loc["Dependence_Variable", "mean"]
         std = std_params.loc["Dependence_Variable", "std"]
         y_pred = pd.Series(norm.cdf((model.predict()) * std + mean))

@@ -88,7 +88,7 @@ def cum_to_mar(
     Description:
         The through the cycle curve (TTC) has been built based on observation time
         and cumulative throughout lifetime of portfolio. To derive marginal PD
-        from cumulative PD, the difference between n + 1 to n is computed. T
+        from cumulative PD, the difference between n + 1 to n is computed.
 
     Args:
         cum (np.array): Input array as cumulative PD.
@@ -107,3 +107,29 @@ def cum_to_mar(
    CumPD(t) = 1 - S(t)
    """
    return 1 - np.cumprod(1 - mar)
+
+# Marginal to conditional
+def mar_to_con(
+    mar: np.ndarray
+) -> np.ndarray:
+    
+    """
+    Conditional PD.
+
+    Description:
+        Given that the model was developed on 12-months ODR, the proposed logit approach
+        focuses on overlaying macro effect on corresponding 12-months PD component.
+        Macro effect has to be incorporated on Conditional PD to align with this basis.
+
+    Args:
+        mar (np.array): Input array as marginal PD.
+
+    Returns:
+        np.ndarray: Conditional PD.
+
+    Notes:
+        - The first year of conditional PD is equal to cumulative PD and marginal PD.
+    """
+
+    cum_shift = np.concatenate(([0], np.cumsum(mar)[:-1]))
+    return mar / (1 - cum_shift)

@@ -13,7 +13,7 @@ warnings.filterwarnings('ignore', category = UserWarning)
 def to_array(
     data_dict: dict,
     data_key: str
-) -> np.array:
+) -> np.ndarray:
    
    """
     To array function.
@@ -27,7 +27,7 @@ def to_array(
                             {keys: values} --> {
                                                 segment (str): unbias result (dict) --> {
                                                                                         "n": int,
-                                                                                        "Unbias": np.array,
+                                                                                        "Unbias": np.ndarray,
                                                                                         }
                                                 }
         data_key (str)      : Key of weights in dictionary.
@@ -59,7 +59,7 @@ def weighted_avg(
                             {keys: values} --> {
                                                 segment (str): unbias result (dict) --> {
                                                                                         "n": int,
-                                                                                        "Unbias": np.array,
+                                                                                        "Unbias": np.ndarray,
                                                                                         }
                                                 }
         weight_key (str)    : Key of weights in dictionary.
@@ -91,7 +91,7 @@ def cum_to_mar(
         from cumulative PD, the difference between n + 1 to n is computed.
 
     Args:
-        cum (np.array): Input array as cumulative PD.
+        cum (np.ndarray): Input array as cumulative PD.
 
     Returns:
         np.ndarray: Marginal PD.
@@ -101,12 +101,6 @@ def cum_to_mar(
     """
 
     return np.diff(cum, prepend = 0)
-
-   """Marginal PD → Cumulative PD
-   S(t) = cumprod(1 - mar)
-   CumPD(t) = 1 - S(t)
-   """
-   return 1 - np.cumprod(1 - mar)
 
 # Marginal to conditional
 def mar_to_con(

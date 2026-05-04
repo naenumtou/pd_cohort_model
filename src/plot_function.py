@@ -924,7 +924,12 @@ def plot_backtest(
         linewidth = 1, alpha = 0.6, label = "-2S.D."
     )
     ax.plot([], [], ' ', label = f"Adj. R-Square: {model.rsquared_adj * 100:.2f}%")
-    ax.set_yticklabels([f"{y * 100:.2f}%" for y in ax.get_yticks()])
+    
+    if model_method != "CCI":
+        ax.set_yticklabels([f"{y * 100:.2f}%" for y in ax.get_yticks()])
+    else:
+        ax.set_yticklabels([f"{y:.4f}" for y in ax.get_yticks()])
+        
     ax.legend(frameon = True, facecolor = 'white', loc = "upper right")
     plt.tight_layout()
     

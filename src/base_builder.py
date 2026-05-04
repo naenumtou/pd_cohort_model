@@ -498,7 +498,7 @@ def unbias_calibration(
         n_col (str)                 : Number of observation for a corresponding to the segment.
 
     Returns:
-        Dictionary: Keys are segmentation name corresponding to the pool.
+        Dictionary: Keys are segmentation name.
                     Values are unbias calibration results
                     {keys: values} --> {
                                         segment (str): Unbias calibration results (dict) --> {

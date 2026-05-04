@@ -102,24 +102,6 @@ def cum_to_mar(
 
     return np.diff(cum, prepend = 0)
 
-def mar_to_con(mar: np.ndarray) -> np.ndarray:
-   """Marginal PD → Conditional PD
-   S(t) = cumprod(1 - mar)
-   con(t) = 1 - S(t)/S(t-1)
-   """
-   s = np.cumprod(1 - mar)
-   s_lag = np.concatenate([[1.0], s[:-1]])
-   return 1 - s / s_lag
-
-def con_to_mar(con: np.ndarray) -> np.ndarray:
-   """Conditional PD → Marginal PD
-   S(t) = cumprod(1 - con)
-   mar(t) = 1 - S(t)/S(t-1)
-   """
-   s = np.cumprod(1 - con)
-   s_lag = np.concatenate([[1.0], s[:-1]])
-   return 1 - s / s_lag
-def mar_to_cum(mar: np.ndarray) -> np.ndarray:
    """Marginal PD → Cumulative PD
    S(t) = cumprod(1 - mar)
    CumPD(t) = 1 - S(t)

@@ -934,3 +934,59 @@ def plot_backtest(
     plt.tight_layout()
     
     return plt.show()
+
+# Plot compared final result
+def plot_pit_comp(
+    d1: dict,
+    d2: dict,
+    plot_title: str
+) -> None:
+    
+    """
+    Plot comparision between unbias lifetime ODR and PiT Lifetime ODR.
+
+    Description:
+        Showing the results between unbias lifetime ODR and PiT Lifetime ODR.
+
+    Args:
+        d1 (dict)           : The dictionary of unbias lifetime ODR.
+                            Keys are segmentation name.
+                            Values are unbias ODR.
+                            {keys: values} --> {segment (str): ODR (np.ndarray)}
+        d2 (dict)           : The dictionary of PiT Lifetime ODR (Post calibration).
+                            Keys are segmentation name.
+                            Values are PiT PD.
+                            {keys: values} --> {segment (str): PD (np.ndarray)}
+        plot_title (str)    : Name of the plot.
+
+    Returns:
+        Figure: Showing figure from matplotlib.
+
+    Notes:
+        - N/A.
+    """
+    
+    keys = list(d1.keys())
+    n = len(keys)
+    x = np.arange(1, len(next(iter(d1.values()))) + 1)
+
+
+    fig, axes = plt.subplots(3, int(n / 3), figsize = (20, 12), sharex = True)
+    fig.suptitle(plot_title, y = 1)
+    axes = axes.flatten()
+
+    for ax, k in zip(axes, keys):
+        unbias_line, = ax.plot(x, d1[k], linewidth = 1.5, linestyle = "--", alpha = 0.65) # Unbias
+        pit_line, = ax.plot(x, d2[k], linewidth = 2) # PiT
+        ax.set_title(k)
+        ax.legend(
+            handles = [unbias_line, pit_line], labels = ["Unbias", "PiT"],
+            loc = "center right", frameon = True
+        )
+        ax.set_yticklabels([f"{y * 100:.2f}%" for y in ax.get_yticks()])
+
+    fig.supxlabel("Lifetime")
+    fig.supylabel("PD")
+    plt.tight_layout()
+
+    return plt.show()

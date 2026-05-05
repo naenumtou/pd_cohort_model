@@ -217,7 +217,16 @@ def mev_transformation(
         [first_sign_transformed, sign_lag],
         ignore_index = True,
     )
+    
+    # Export
+    filename = "mev_transformed"
+    data.to_parquet(
+        f"../data/processed/{filename}.parquet",
+        engine = 'pyarrow'
+        )
+    
     print(f"=== Result ===\nTotal MEV(s): {data.shape[1]}")
+    print(f"[INFO]: Export - '..data/processed/{filename}.parquet'")
 
     return data, final_sign_transformed
 
@@ -326,6 +335,7 @@ def prepare_training_set(
                 f"../model/{filename}.parquet",
                 engine = 'pyarrow'
                 )
+            print(f"[INFO]: Export - '../model/{filename}.parquet'")
 
             if outplot:
                 fig = plot_dep_var(y, y_data, model_method)

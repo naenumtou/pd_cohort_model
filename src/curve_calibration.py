@@ -41,6 +41,7 @@ def to_array(
    
    return np.array([v[data_key] for v in data_dict.values()])
 
+# Weighted average
 def weighted_avg(
     data_dict: dict,
     weight_key: str,

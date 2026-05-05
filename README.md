@@ -30,18 +30,39 @@ The resulting PD term structures can be directly used in Stage 1 and Stage 2 ECL
 ## Project Structure
 ```
 pd_cohort_model/
-├── models/  #Trainned model (.cbm) and study parameters (pkl.)
-│   ├── ...      
+├── models/          #Trainned model and parameters (pkl.)
+│   ├── actual_cumulative_odr.pkl
+│   ├── chain_cumulative_odr.pkl
+│   ├── w_avg_chain_cumulative_odr.pkl
+│   ├── w_avg_gamma_cumulative_odr.pkl
+│   ├── w_avg_gamma_parameters.pkl
+│   ├── unbias_cumulative_odr.pkl
+│   ├── fwl_model.pkl
+│   └── pit_cumulative_lifetime_pd.pkl  
 ├── notebooks/
 │   ├── 01_data_preparation.ipynb
 │   ├── 02_chaid_segmentation.ipynb
 │   ├── 03_base_cohort.ipynb
 │   ├── 04_fwl_model.ipynb
-│   └── ...
+│   └── 05_lifetime_calibration.ipynb
 ├── src/
+│   ├── data_prep.py
 │   ├── segment_support.py
-│   └── ...
-├── data/         #Not tracked by git
+│   ├── base_builder.py
+│   ├── regression_model.py
+│   ├── curve_calibration.py
+│   ├── stats_testing.py
+│   └── plot_function.py
+├── data/          
+│   ├── processed/
+|   |   ├── train_data.parquet          #Not tracked by git
+|   |   ├── cohort_count.parquet
+|   |   ├── unbias_odr.parquet
+|   |   ├── monthly_odr.parquet
+|   |   └── mev_transformed.parquet
+│   └── raw/
+|   |   ├── usedcar_transaction_score.parquet          #Not tracked by git
+|   |   └── mev_data.csv
 ├── requirements.txt
 └── README.md
 ```

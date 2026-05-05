@@ -55,4 +55,4 @@ def cohort_count(
     engine = 'pyarrow'
     )
     
-    return print(f"=== Result ===\n[Export location: '..data/processed/{filename}.parquet']")
+    return print(f"[INFO]: Export - '..data/processed/{filename}.parquet'")

@@ -23,7 +23,7 @@ def to_array(
 
     Args:
         data (dict)         : Input dictionary. Keys are segmentation name.
-                            Values are unbias calibration results
+                            Values are unbias calibration results.
                             {keys: values} --> {
                                                 segment (str): unbias result (dict) --> {
                                                                                         "n": int,
@@ -56,7 +56,7 @@ def weighted_avg(
 
     Args:
         data (dict)         : Input dictionary. Keys are segmentation name.
-                            Values are unbias calibration results
+                            Values are unbias calibration results.
                             {keys: values} --> {
                                                 segment (str): unbias result (dict) --> {
                                                                                         "n": int,
@@ -309,3 +309,277 @@ def _ffill_to_n(
             out[12 + len(tail):] = tail[-1]
 
         return logit(out)
+    
+# Calibration process portfolio level
+def port_calibrate_pd(
+    base_curve: dict,
+    weight_key: str,
+    pd_key: str,
+    fwl_predict: np.ndarray,
+    odr_level: str = "Yearly"
+) -> np.ndarray:
+    
+    """
+    Liftime carlibration process on portfolio level.
+
+    Description:
+        Weighted average of cumulative lifetime PD has been used for calibration.
+        The cumulative is converting marginal and conditional basis and transforming
+        to logit scale for calibration. Post calibration is then transformed back to
+        expit (%) following by conditional and marginal. The final curve will be
+        cumulative lifetime PiT PD.
+       
+        For the monthly level of cohort, there are addtional steps converting from
+        1-month to 12-months and convert back to 1-month again.
+
+    Args:
+        base_curve (dict)           : Input dictionary. Keys are segmentation name.
+                                    Values are unbias calibration results.
+                                    {keys: values} --> {
+                                                        segment (str): unbias result (dict) --> {
+                                                                                                "n": int,
+                                                                                                "Unbias": np.ndarray,
+                                                                                                }
+                                                        }
+        weight_key (str)            : Key of weights in dictionary.
+        pd_key (str)                : Key of PD in dictionary.
+        fwl_predict (np.ndarray)    : n-periods of FWL Prediction.
+        odr_level (str)             : The level of calculated lifetime ODR. Default = "Yearly".
+
+    Returns:
+        np.ndarray: Weighted average calibrated cumulative lifetime PiT PD.
+
+    Notes:
+        - The ODR Level MUST consist with the inital level of development.
+        - If odr_level = "Yearly", this means target for calibartion is the first year PD.
+        - If odr_level = "Monthly", this means target for calibartion is the 12-months PD.
+    """
+    
+    port_cum = _weighted_avg(base_curve, weight_key, pd_key)
+    port_mar = _cum_to_mar(port_cum)
+    port_con = _mar_to_con(port_mar)
+    target = logit(port_cum[0])
+    t = len(port_cum)
+
+    # For monthly level
+    if odr_level == "Monthly":
+        port_con = _to_twelve_basis(port_con)
+        target = logit(port_cum[11]) #At month 12
+
+    # FWL Prediction
+    mev_effect = _ffill_to_n(fwl_predict, t, odr_level)
+    
+    # MEV Effect
+    port_logit = logit(port_con)
+    port_calibrate = port_logit + mev_effect - target
+    port_expit = expit(port_calibrate)
+
+    # For monthly level
+    if odr_level == "Monthly":
+        port_expit = _to_one_basis(port_expit) #Back to 12-months
+    
+    port_mar_post = _con_to_mar(port_expit)
+    port_cum_post = _mar_to_cum(port_mar_post)
+    
+    return port_cum_post
+
+# Calibration process segment level
+def seg_calibrate_pd(
+    base_curve: dict,
+    weight_key: str,
+    pd_key: str,
+    fwl_predict: np.ndarray,
+    delta: np.ndarray,
+    odr_level: str = "Yearly"
+) -> np.ndarray:
+    
+    """
+    Liftime carlibration process on portfolio level.
+
+    Description:
+        The cumulative lifetime PD on each segment has been used for calibration.
+        The cumulative is converting marginal and conditional basis and transforming
+        to logit scale for calibration.
+        
+        It was observed that if the PiT PD is calculated for weighted average curve,
+        it is slightly different from weighted average PiT PD post-calibration from segment.
+        The delta need to be incorporated into the calibrartion.
+        
+        Post calibration is then transformed back to expit (%) following by conditional and marginal.
+        The final curve will be cumulative lifetime PiT PD.
+       
+        For the monthly level of cohort, there are addtional steps converting from
+        1-month to 12-months and convert back to 1-month again.
+
+    Args:
+        base_curve (dict)           : Input dictionary. Keys are segmentation name.
+                                    Values are unbias calibration results.
+                                    {keys: values} --> {
+                                                        segment (str): unbias result (dict) --> {
+                                                                                                "n": int,
+                                                                                                "Unbias": np.ndarray,
+                                                                                                }
+                                                        }
+        weight_key (str)            : Key of weights in dictionary.
+        pd_key (str)                : Key of PD in dictionary.
+        fwl_predict (np.ndarray)    : n-periods of FWL Prediction.
+        delta (np.ndarray)          : n-periods of optimized delta for minize the noise.
+        odr_level (str)             : The level of calculated lifetime ODR. Default = "Yearly".
+
+    Returns:
+        np.ndarray: Calibrated cumulative lifetime PiT PD.
+
+    Notes:
+        - The ODR Level MUST consist with the inital level of development.
+        - If odr_level = "Yearly", this means target for calibartion is the first year PD.
+        - If odr_level = "Monthly", this means target for calibartion is the 12-months PD.
+    """
+    
+    port_cum = _weighted_avg(base_curve, weight_key, pd_key)
+    target = logit(port_cum[0]) #Same target as portfolio level
+    t = len(port_cum)
+
+    # Segment level
+    seg_cum = _to_array(base_curve, pd_key)
+    seg_mar = _cum_to_mar(seg_cum)
+    seg_con = _mar_to_con(seg_mar)
+
+    # For 1-month basis
+    if odr_level == "Monthly":
+        seg_con = _to_twelve_basis(seg_con)
+        target = logit(port_cum[11]) #At month 12, same target as portfolio level
+    
+    # FWL Prediction
+    mev_effect = _ffill_to_n(fwl_predict, t, odr_level)
+    
+    # MEV Effect (+Delta)
+    seg_logit = logit(seg_con)
+    seg_calibrate = seg_logit + mev_effect - target + delta
+    seg_expit = expit(seg_calibrate)
+
+    # For 1-month basis
+    if odr_level == "Monthly":
+        seg_expit = _to_one_basis(seg_expit)
+
+    seg_mar_post = _con_to_mar(seg_expit)
+    seg_cum_post = _mar_to_cum(seg_mar_post)
+
+    return seg_cum_post
+
+# Objective function
+def objective(
+    delta: np.ndarray,
+    base_curve: dict,
+    weight_key: str,
+    pd_key: str,
+    fwl_predict: np.ndarray
+) -> float:
+
+    """
+    Cost objective function.
+
+    Description:
+        The sum of absolute difference in post-calibration of portfolio level and segment level
+        over the lifetime is minimum.
+       
+    Args:
+        delta (np.ndarray)          : n-periods of optimized delta for minize the noise.
+        base_curve (dict)           : Input dictionary. Keys are segmentation name.
+                                    Values are unbias calibration results.
+                                    {keys: values} --> {
+                                                        segment (str): unbias result (dict) --> {
+                                                                                                "n": int,
+                                                                                                "Unbias": np.ndarray,
+                                                                                                }
+                                                        }
+        weight_key (str)            : Key of weights in dictionary.
+        pd_key (str)                : Key of PD in dictionary.
+        fwl_predict (np.ndarray)    : n-periods of FWL Prediction.
+
+    Returns:
+        float: The sum of absolute difference in post-calibration of portfolio level and segment level.
+
+    Notes:
+        - N/A.
+    """
+
+    port_cum_post = port_calibrate_pd(base_curve, weight_key, pd_key, fwl_predict)
+    seg_cum_post = seg_calibrate_pd(base_curve, weight_key, pd_key, fwl_predict, delta)
+    weights = _to_array(base_curve, weight_key)
+    w_seg_cum_post = np.sum(seg_cum_post * weights[:, None], axis = 0) / np.sum(weights)
+
+    # Cost function
+    diff = np.abs(port_cum_post - w_seg_cum_post)
+
+    return np.sum(diff)
+
+# Optimization delta
+def find_delta(
+    base_curve: dict,
+    weight_key: str,
+    pd_key: str,
+    fwl_predict: np.ndarray,
+    odr_level: str = "Yearly",
+    method: str = 'L-BFGS-B'
+) -> dict:
+   
+    """
+    Find optimized delta function.
+
+    Description:
+        The function for delta optimization to minimize the noise effect. 
+       
+    Args:
+        base_curve (dict)           : Input dictionary. Keys are segmentation name.
+                                    Values are unbias calibration results.
+                                    {keys: values} --> {
+                                                        segment (str): unbias result (dict) --> {
+                                                                                                "n": int,
+                                                                                                "Unbias": np.ndarray,
+                                                                                                }
+                                                        }
+        weight_key (str)            : Key of weights in dictionary.
+        pd_key (str)                : Key of PD in dictionary.
+        fwl_predict (np.ndarray)    : n-periods of FWL Prediction.
+        odr_level (str)             : The level of calculated lifetime ODR. Default = "Yearly".
+        method (str)                : Method for optimization.
+
+    Returns:
+        dict: Output dictionary. Keys are segmentation name.
+            Values are PiT Calibration results.
+            {keys: values} --> {
+                                segment (str): PiT result (np.ndarray) --> np.ndarray
+                                }
+
+    Notes:
+        - N/A.
+    """
+
+    print("=== Processing ===\n[Delta optimization for lifetime PD]")
+
+    port_cum = _weighted_avg(base_curve, weight_key, pd_key)
+    t = len(port_cum)
+
+    # Initial delta = 0
+    delta0 = np.zeros(t)
+    result = minimize(
+        fun = objective,
+        x0 = delta0,
+        args = (base_curve, weight_key, pd_key, fwl_predict),
+        method  = method,
+        options = {'ftol': 1e-12, 'gtol': 1e-10, 'maxiter': 100_000}
+    )
+
+    # Delta result
+    delta_opt = result.x
+
+    # Re-fitting with segmentation curves
+    segment_keys = list(base_curve.keys())
+    seg_cum_post = seg_calibrate_pd(base_curve, weight_key, pd_key, fwl_predict, delta_opt, odr_level)
+    seg_cum_post = dict(zip(segment_keys, seg_cum_post))
+
+    print("=== Result ===")
+    print(f"    Loss: {round(result.fun, 4)}")
+    print(f"    Delta: {delta_opt}")
+
+    return seg_cum_post

@@ -3,7 +3,8 @@ import warnings
 import pandas as pd
 import numpy as np
 
-from scipy.optimize import curve_fit
+from scipy.special import logit, expit
+from scipy.optimize import minimize
 
 warnings.simplefilter(action = 'ignore', category = pd.errors.PerformanceWarning)
 warnings.filterwarnings('ignore', category = RuntimeWarning)

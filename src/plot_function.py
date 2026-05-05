@@ -638,7 +638,7 @@ def plot_unbias_lifetime(
         fitted (dict)       : The dictionary contains fitted cumulative lifetime ODR.
                             {keys: values} --> {pool (tuple , str): ODR (np.ndarray)}
         unbias (dict)       : Keys are segmentation name corresponding to the pool.
-                            Values are unbias calibration results
+                            Values are unbias calibration results.
                             {keys: values} --> {
                                                 segment (str): Unbias calibration results (dict) --> {
                                                                                                       "n": int,

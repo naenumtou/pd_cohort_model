@@ -154,7 +154,7 @@ def to_twelve_basis(
         12-months before incorporating into the PD Curves.
 
     Args:
-        mar (np.array): Input array as marginal PD.
+        mar (np.array): Input array as conditional PD.
 
     Returns:
         np.ndarray: 12-months conditional PD.

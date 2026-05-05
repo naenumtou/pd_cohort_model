@@ -499,7 +499,7 @@ def unbias_calibration(
 
     Returns:
         Dictionary: Keys are segmentation name.
-                    Values are unbias calibration results
+                    Values are unbias calibration results.
                     {keys: values} --> {
                                         segment (str): Unbias calibration results (dict) --> {
                                                                                               "n": int,

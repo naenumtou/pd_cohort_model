@@ -138,3 +138,28 @@ def mar_to_con(
         print("[WARN]: Only 1D or 2D arrays supported")
         
     return mar / (1 - cum_shift)
+
+# To 12-months Basis
+def to_twelve_basis(
+    con: np.ndarray
+) -> np.ndarray:
+    
+    """
+    Convert 1-month conditional PD to 12-months conditional PD.
+
+    Description:
+        Given the fact that some models was developed based on 1-month ODR, the propose
+        is to convert from 1-month basis to the same as the macro effect on corresponding
+        12-months before incorporating into the PD Curves.
+
+    Args:
+        mar (np.array): Input array as marginal PD.
+
+    Returns:
+        np.ndarray: 12-months conditional PD.
+
+    Notes:
+        - N/A.
+    """
+
+    return 1 - ((1 - con) ** 12)

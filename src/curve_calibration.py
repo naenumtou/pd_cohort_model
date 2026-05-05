@@ -139,7 +139,7 @@ def mar_to_con(
         
     return mar / (1 - cum_shift)
 
-# To 12-months Basis
+# To 12-months basis
 def to_twelve_basis(
     con: np.ndarray
 ) -> np.ndarray:

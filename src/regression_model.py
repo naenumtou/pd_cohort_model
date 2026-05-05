@@ -714,7 +714,7 @@ def run_fwl_model(
     if np.any(vif >= config_threhold["vif"]):
         return None, None, None
 
-    # HAC Adjustment for overcome heteroscedasticity and auto correlation issues
+    # HAC Adjustment for overcome heteroscedasticity and autocorrelation issues
     lags = int(4 * (X_train_comb.shape[0] / 100) ** (2 / 9))
     hac_model = model.get_robustcov_results(cov_type = "HAC", maxlags = lags)
     hac_p_values = np.array(hac_model.pvalues)
@@ -733,7 +733,8 @@ def run_fwl_model(
     model_vars = np.array(model.params.index)
     model_coefs = np.array(model.params)
     
-    # For CF Model, the data is Standardized. The intercept's coefficient will be zero or very close to zero
+    # For CF Model, the data is Standardized.
+    # The intercept's coefficient will be zero or very close to zero
     if model_method == "CF":
         model_coefs[0] = 0
 

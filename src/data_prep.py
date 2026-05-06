@@ -88,7 +88,6 @@ def ever_default_lifetime(
 
     Description:
         The n-lags of column features are created by primary key. 
-        bal{w}          Account balance lagged w months.
 
     Args:
         df (pd.DataFrame)   : Input dataframe.

@@ -73,10 +73,6 @@ pd_cohort_model/
 <img width="1691" height="930" alt="การพัฒนาแบบจำลอง IFRS 9 PD Model ตั้งแต่ต้นจนจบ" src="https://github.com/user-attachments/assets/6631967e-8cf0-4308-95d6-fce603b22a7b" />
 </p>
 
-
-fdsafdsa
-
-
 #### 1.1 Cohort Building
 **Cohort Based Default Measurement:** Exposures are segmented into homogeneous cohorts defined at observation point (e.g., vintage, product type, risk band). For each cohort, default events are tracked over time since observation point to construct marginal and cumulative default "triangles" forming the empirical basis for lifetime PD estimation under an IFRS 9 consistent default definition.
 <p align="center">
@@ -90,17 +86,32 @@ fdsafdsa
 </p>
 
 #### 1.3 Gamma Fitting
-> Note: The Gamma distribution can be replaced by other statistic disctributions such as Weibull distribution.
+> Note: The Gamma distribution can be replaced by other statistic disctributions such as Weibull distribution. Or even mathematical formula e.g., Nelson Siegel but it needs to transform into correct basis. In this repository, the Gamma distribution is leveraged.
 
-**Parametric Model via Gamma Distribution:** A Gamma distribution is fitted to the projected (extended) cumulative PD term structure for each cohort to remove sampling noise, enforce monotonicity, and obtain a smooth, stable PD curve.
+**Parametric Model via Gamma Distribution:** A Gamma distribution is fitted to the projected (extended) cumulative PD term structure for each cohort to remove sampling noise, enforce monotonicity, and obtain a smooth, stable PD curve. In the step, the segments from cohort built might be groupped as a **pool** level in case those segments are unable to build a stable curve by its own.
 <p align="center">
 <img width="1990" height="789" alt="การพัฒนาแบบจำลอง IFRS 9 PD Model ตั้งแต่ต้นจนจบ" src="https://github.com/user-attachments/assets/a15caf28-afe1-4d51-b946-c9a865c426d6" />
 </p>
 
-
 #### 1.4 Unbias Calibration
+**Unbias Calibration:** The smoothed (Gamma) PD(s) are calibrated to align with long-run (TTC) Observed Default Rate (ODR). This is to ensure the key **Unbias** concept of IFRS 9 that no structural optimism or conservatism in the PD Estimated. The calibration is based on the concept that ratio of odds ratio for month m or year y and 12 months or 1-year will remain the same shape for segmentation level and the lifetime pool level. The equation below is for unbias calibration of odds function:
 
-
+$$
+Unbias\ lifetime\ ODR = 
+\frac{
+\text{ODR}_{\text{Unbias}}
+\cdot
+\frac{\text{ODR}_{TTC}}{\text{ODR}_{Target}}
+}{
+\text{ODR}_{\text{Unbias}}
+\cdot
+\frac{\text{ODR}_{TTC}}{\text{ODR}_{Target}}
++
+\left(1-\text{ODR}_{\text{Unbias}}\right)
+\cdot
+\frac{1-\text{ODR}_{TTC}}{1-\text{ODR}_{Target}}
+}
+$$
 
 <p align="center">
 <img width="1990" height="789" alt="การพัฒนาแบบจำลอง IFRS 9 PD Model ตั้งแต่ต้นจนจบ" src="https://github.com/user-attachments/assets/f4031e4f-d61e-46cc-aca3-dacb9bcdd45d" />

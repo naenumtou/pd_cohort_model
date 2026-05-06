@@ -113,6 +113,12 @@ Unbias\ lifetime\ ODR =
 }
 $$
 
+where;
+
+- ${\text{ODR}}_{\text{Unbias}}$ is a 12-months ODR from each segmentation;
+- ${\text{ODR}}_{\text{Target}}$ is a ODR at month of 12 when monthly level or at year of 1 when yearly level for a corresponding to the lifetime pool;
+- ${\text{ODR}}_{\text{TTC}}$ are TTC PD(s) in month m or year y for a corresponding to the lifetime pool
+
 <p align="center">
 <img width="1990" height="789" alt="การพัฒนาแบบจำลอง IFRS 9 PD Model ตั้งแต่ต้นจนจบ" src="https://github.com/user-attachments/assets/f4031e4f-d61e-46cc-aca3-dacb9bcdd45d" />
 </p>

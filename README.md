@@ -74,6 +74,21 @@ pd_cohort_model/
 </p>
 
 
+fdsafdsa
+
+
+#### 1.1 Cohort Building
+**Cohort Based Default Measurement:** Exposures are segmented into homogeneous cohorts defined at observation point (e.g., vintage, product type, risk band). For each cohort, default events are tracked over time since observation point to construct marginal and cumulative default "triangles" forming the empirical basis for lifetime PD estimation under an IFRS 9 consistent default definition.
+
+#### 1.2 Chain-Ladder
+**Chain‑Ladder Pattern Projection:** Observed cohort default triangles are now run-off triangles. Given this fact that the more recent period, the less lifetime windows for tracking default. To fill the triangles, using chain‑ladder (development factor) methodology to extrapolate incomplete default histories. This produces projected ultimate cumulative lifetime PD for each cohort, enabling consistent estimation even for recently originated (immature) portfolios.
+
+#### 1.3 Gamma Fitting
+**Parametric Model via Gamma Distribution:** A Gamma distribution is fitted to the projected cumulative PD term structure for each cohort to remove sampling noise, enforce monotonicity, and obtain a smooth, stable PD curve. Differentiation of the fitted cumulative curve yields period‑specific (marginal) PDs with appropriate skewness and long‑term behavior.
+
+#### 1.4 Unbias Calibration
+#### 1.5 Result
+
 ### 2. Forward-looking Model
 <p align="center">
 <img width="1690" height="931" alt="การพัฒนาแบบจำลอง IFRS 9 PD Model ตั้งแต่ต้นจนจบ" src="https://github.com/user-attachments/assets/fe580c69-d4d4-4728-99f2-ee073f5d786f" />

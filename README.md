@@ -79,15 +79,33 @@ fdsafdsa
 
 #### 1.1 Cohort Building
 **Cohort Based Default Measurement:** Exposures are segmented into homogeneous cohorts defined at observation point (e.g., vintage, product type, risk band). For each cohort, default events are tracked over time since observation point to construct marginal and cumulative default "triangles" forming the empirical basis for lifetime PD estimation under an IFRS 9 consistent default definition.
+<p align="center">
+ <img width="1632" height="759" alt="การพัฒนาแบบจำลอง IFRS 9 PD Model ตั้งแต่ต้นจนจบ" src="https://github.com/user-attachments/assets/7bde8a5c-04f7-4b2f-9c2b-9eb3a5b9e734" />
+</p>
 
 #### 1.2 Chain-Ladder
 **Chain‑Ladder Pattern Projection:** Observed cohort default triangles are now run-off triangles. Given this fact that the more recent period, the less lifetime windows for tracking default. To fill the triangles, using chain‑ladder (development factor) methodology to extrapolate incomplete default histories. This produces projected ultimate cumulative lifetime PD for each cohort, enabling consistent estimation even for recently originated (immature) portfolios.
+<p align="center">
+<img width="1632" height="759" alt="การพัฒนาแบบจำลอง IFRS 9 PD Model ตั้งแต่ต้นจนจบ" src="https://github.com/user-attachments/assets/34bc2ebd-7790-4c73-9625-de97f9e98426" />
+</p>
 
 #### 1.3 Gamma Fitting
-**Parametric Model via Gamma Distribution:** A Gamma distribution is fitted to the projected cumulative PD term structure for each cohort to remove sampling noise, enforce monotonicity, and obtain a smooth, stable PD curve. Differentiation of the fitted cumulative curve yields period‑specific (marginal) PDs with appropriate skewness and long‑term behavior.
+> Note: The Gamma distribution can be replaced by other statistic disctributions such as Weibull distribution.
+
+**Parametric Model via Gamma Distribution:** A Gamma distribution is fitted to the projected (extended) cumulative PD term structure for each cohort to remove sampling noise, enforce monotonicity, and obtain a smooth, stable PD curve.
+<p align="center">
+<img width="1990" height="789" alt="การพัฒนาแบบจำลอง IFRS 9 PD Model ตั้งแต่ต้นจนจบ" src="https://github.com/user-attachments/assets/a15caf28-afe1-4d51-b946-c9a865c426d6" />
+</p>
+
 
 #### 1.4 Unbias Calibration
-#### 1.5 Result
+
+
+
+<p align="center">
+<img width="1990" height="789" alt="การพัฒนาแบบจำลอง IFRS 9 PD Model ตั้งแต่ต้นจนจบ" src="https://github.com/user-attachments/assets/f4031e4f-d61e-46cc-aca3-dacb9bcdd45d" />
+</p>
+
 
 ### 2. Forward-looking Model
 <p align="center">

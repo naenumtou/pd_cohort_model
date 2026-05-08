@@ -10,6 +10,7 @@ from scipy.stats import zscore, norm
 from scipy.special import expit
 
 # Helper function
+# Extract string for plotting
 def _extract_for_plot(
     key_tuple: tuple
 ) -> str:

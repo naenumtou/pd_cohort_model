@@ -11,7 +11,8 @@ warnings.filterwarnings('ignore', category = RuntimeWarning)
 warnings.filterwarnings('ignore', category = UserWarning)
 
 # Helper function
-def to_array(
+# To array from dict
+def _to_array(
     data_dict: dict,
     data_key: str
 ) -> np.ndarray:
@@ -43,7 +44,7 @@ def to_array(
    return np.array([v[data_key] for v in data_dict.values()])
 
 # Weighted average
-def weighted_avg(
+def _weighted_avg(
     data_dict: dict,
     weight_key: str,
     pd_key: str
@@ -80,7 +81,7 @@ def weighted_avg(
     return np.sum(data * weights[:, None], axis = 0) / np.sum(weights)
 
 # Cumulative to marginal
-def cum_to_mar(
+def _cum_to_mar(
     cum: np.ndarray
 ) -> np.ndarray:
 
@@ -105,7 +106,7 @@ def cum_to_mar(
     return np.diff(cum, prepend = 0)
 
 # Marginal to conditional
-def mar_to_con(
+def _mar_to_con(
     mar: np.ndarray
 ) -> np.ndarray:
     
@@ -142,7 +143,7 @@ def mar_to_con(
     return mar / (1 - cum_shift)
 
 # To 12-months basis
-def to_twelve_basis(
+def _one_to_twelve(
     con: np.ndarray
 ) -> np.ndarray:
     
@@ -167,7 +168,7 @@ def to_twelve_basis(
     return 1 - ((1 - con) ** 12)
 
 # To 1-month basis
-def _to_one_basis(
+def _twelve_to_one(
     con: np.ndarray
 ) -> np.ndarray:
        
@@ -364,7 +365,7 @@ def port_calibrate_pd(
 
     # For monthly level
     if odr_level == "Monthly":
-        port_con = _to_twelve_basis(port_con)
+        port_con = _one_to_twelve(port_con)
         target = logit(port_cum[11]) #At month 12
 
     # FWL Prediction
@@ -377,7 +378,7 @@ def port_calibrate_pd(
 
     # For monthly level
     if odr_level == "Monthly":
-        port_expit = _to_one_basis(port_expit) #Back to 12-months
+        port_expit = _twelve_to_one(port_expit) #Back to 12-months
     
     port_mar_post = _con_to_mar(port_expit)
     port_cum_post = _mar_to_cum(port_mar_post)
@@ -447,7 +448,7 @@ def seg_calibrate_pd(
 
     # For 1-month basis
     if odr_level == "Monthly":
-        seg_con = _to_twelve_basis(seg_con)
+        seg_con = _one_to_twelve(seg_con)
         target = logit(port_cum[11]) #At month 12, same target as portfolio level
     
     # FWL Prediction
@@ -460,7 +461,7 @@ def seg_calibrate_pd(
 
     # For 1-month basis
     if odr_level == "Monthly":
-        seg_expit = _to_one_basis(seg_expit)
+        seg_expit = _twelve_to_one(seg_expit)
 
     seg_mar_post = _con_to_mar(seg_expit)
     seg_cum_post = _mar_to_cum(seg_mar_post)

@@ -8,6 +8,7 @@ warnings.filterwarnings('ignore', category = RuntimeWarning)
 warnings.filterwarnings('ignore', category = UserWarning)
 
 # Helper functions
+# Lag-n columns
 def _lag_cols(
     base: str,
     n: int

@@ -664,17 +664,19 @@ def run_fwl_model(
         observed data points.
         
     Args:
-        i (int)                     : The iteration number to define model name.
-        combination (list)          : The combinations for regression model.
-        X_train (pd.DataFrame)      : The transformed MEV(s) Data.
-        y_train (pd.Series)         : The dependence variable target data (Logit, CF or CCI).
-        sign (pd.DataFrame)         : The data of MEV(s) sign and group contained.
-        model_method (str)          : Name of the regression method. The function is computed;
-                                    1) model_method = "Logit" --> %ODR vs %predicted ODR.
-                                    2) model_method = "CF" --> Inverse CF and compute %ODR vs %predicted ODR.
-                                    3) model_method = "CCI" --> CCI vs predicted CCI.
-        config_threhold (dict)      : The pre-set threshold for model misspecification.
-        std_params (pd.DataFrame)   : The data tabel contained standardisation parameters.
+        i (int)                                 : The iteration number to define model name.
+        combination (list)                      : The combinations for regression model.
+        X_train (pd.DataFrame)                  : The transformed MEV(s) Data.
+        y_train (pd.Series)                     : The dependence variable target data (Logit, CF or CCI).
+        sign (pd.DataFrame)                     : The data of MEV(s) sign and group contained.
+        model_method (str)                      : Name of the regression method. The function is computed;
+                                                1) model_method = "Logit" --> %ODR vs %predicted ODR.
+                                                2) model_method = "CF" --> Inverse CF and compute %ODR vs %predicted ODR.
+                                                3) model_method = "CCI" --> CCI vs predicted CCI.
+                                                If model_method = "CCI", the std_params must input as pd.DataFrame
+        config_threhold (dict)                  : The pre-set threshold for model misspecification.
+        std_params (pd.DataFrame, optional)     : The data table contained standardisation parameters.
+                                                If None, the model_method must be "Logit" or "CCI".
 
     Returns:
         str             : The model name.

@@ -12,6 +12,7 @@ warnings.filterwarnings('ignore', category = RuntimeWarning)
 warnings.filterwarnings('ignore', category = UserWarning)
 
 # Helper function
+# Cohort table with stable period
 def _stable_period(
     df: pd.DataFrame,
     date_col: str,

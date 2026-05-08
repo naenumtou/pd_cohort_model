@@ -14,6 +14,7 @@ from src.plot_function import plot_dep_var, plot_univariate, plot_cluster_timese
 from src.stats_testing import vif_test, and_dar_test, adf_test, back_testing, out_sample_test
 
 # Helper function
+# Expanding sign with default rate
 def _expand_sign(
     cols: list,
     base_func: callable,

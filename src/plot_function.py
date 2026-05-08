@@ -879,7 +879,7 @@ def plot_backtest(
                                                 2) model_method = "CF" --> Inverse CF and compute %ODR vs %predicted ODR.
                                                 3) model_method = "CCI" --> CCI vs predicted CCI.
                                                 If model_method = "CCI", the std_params must input as pd.DataFrame
-        std_params (pd.DataFrame, optional)     : The data tabel contained standardisation parameters.
+        std_params (pd.DataFrame, optional)     : The data table contained standardisation parameters.
                                                 If None, the model_method must be "Logit" or "CCI".
 
     Returns:

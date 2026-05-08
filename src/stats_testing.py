@@ -14,6 +14,7 @@ warnings.filterwarnings('ignore', category = RuntimeWarning)
 warnings.filterwarnings('ignore', category = UserWarning)
 
 # Helper function
+# Create bounds for KS-Test
 def _bound_bucket(
     n: int,
     start: float,
@@ -53,7 +54,7 @@ def _bound_bucket(
 
     return max_buc.values, min_buc.values
 
-# Score bands summary
+# Segmentation summary
 def segment_summary(
     bin_labels: pd.Series,
     y_true: pd.Series

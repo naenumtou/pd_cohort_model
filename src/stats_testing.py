@@ -350,17 +350,17 @@ def back_testing(
         discrepancies does not necessarily mean the model should be rejected.
 
     Args:
-        X_train (pd.DataFrame)  : The transformed MEV(s) Data.
-        y_train (pd.Series)     : The dependence variable target data (Logit, CF or CCI).
-        model (callable)        : The tranined regression model.
-        model_method (str)      : Name of the regression method. The function is computed;
-                                1) model_method = "Logit" --> %ODR vs %predicted ODR.
-                                2) model_method = "CF" --> Inverse CF and compute %ODR vs %predicted ODR.
-                                3) model_method = "CCI" --> CCI vs predicted CCI.
-        mean_cf (float, None)   : Mean of CF to inverse calculation for CF Model.
-                                If None, for CCI and Logit models.
-        std_cf (float, None)    : Standard deviation of CF to inverse calculation for CF Model.
-                                If None, for CCI and Logit models.
+        X_train (pd.DataFrame)          : The transformed MEV(s) Data.
+        y_train (pd.Series)             : The dependence variable target data (Logit, CF or CCI).
+        model (callable)                : The tranined regression model.
+        model_method (str)              : Name of the regression method. The function is computed;
+                                        1) model_method = "Logit" --> %ODR vs %predicted ODR.
+                                        2) model_method = "CF" --> Inverse CF and compute %ODR vs %predicted ODR.
+                                        3) model_method = "CCI" --> CCI vs predicted CCI.
+        mean_cf (float, optional)       : Mean of CF to inverse calculation for CF Model.
+                                        If None, for CCI and Logit models.
+        std_cf (float, optional)        : Standard deviation of CF to inverse calculation for CF Model.
+                                        If None, for CCI and Logit models.
 
     Returns:
         Float: Exceed rate.
@@ -408,17 +408,17 @@ def out_sample_test(
         prediction intervals at 95% and analysing discrepancies.
 
     Args:
-        X_train (pd.DataFrame)  : The transformed MEV(s) Data.
-        y_train (pd.Series)     : The dependence variable target data (Logit, CF or CCI).
-        model (callable)        : The tranined regression model.
-        model_method (str)      : Name of the regression method. The function is computed;
-                                1) model_method = "Logit" --> %ODR vs %predicted ODR.
-                                2) model_method = "CF" --> Inverse CF and compute %ODR vs %predicted ODR.
-                                3) model_method = "CCI" --> CCI vs predicted CCI.
-        mean_cf (float, None)   : Mean of CF to inverse calculation for CF Model.
-                                If None, for CCI and Logit models.
-        std_cf (float, None)    : Standard deviation of CF to inverse calculation for CF Model.
-                                If None, for CCI and Logit models.
+        X_train (pd.DataFrame)          : The transformed MEV(s) Data.
+        y_train (pd.Series)             : The dependence variable target data (Logit, CF or CCI).
+        model (callable)                : The tranined regression model.
+        model_method (str)              : Name of the regression method. The function is computed;
+                                        1) model_method = "Logit" --> %ODR vs %predicted ODR.
+                                        2) model_method = "CF" --> Inverse CF and compute %ODR vs %predicted ODR.
+                                        3) model_method = "CCI" --> CCI vs predicted CCI.
+        mean_cf (float, optional)       : Mean of CF to inverse calculation for CF Model.
+                                        If None, for CCI and Logit models.
+        std_cf (float, optional)        : Standard deviation of CF to inverse calculation for CF Model.
+                                        If None, for CCI and Logit models.
 
     Returns:
         Float: Exceed rate.

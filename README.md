@@ -134,3 +134,58 @@ where;
 <p align="center">
 <img width="1647" height="955" alt="การพัฒนาแบบจำลอง IFRS 9 PD Model ตั้งแต่ต้นจนจบ" src="https://github.com/user-attachments/assets/0c231db8-8d81-408a-87b0-d1bf05a735c6" />
 </p>
+
+#### 3.1 Cohort Curve Construction
+**Unbias Cohort Curves:** The cumulative PD curves derived from the unbias model is preparing for calibration. These must be transformed into weighted average conditional PD ready for lifetime calibration.
+<p align="center">
+<img width="989" height="590" alt="การพัฒนาแบบจำลอง IFRS 9 PD Model ตั้งแต่ต้นจนจบ" src="https://github.com/user-attachments/assets/8e8d2908-31c0-4ae6-b098-3ec66516b7ec" />
+</p>
+
+
+
+#### 3.2 Forward-looking Infornation
+**PD Prediction:** The forward‑looking information is incorporated through outputs from the forward‑looking PD model. The macroeconomic variables is used as input for forecasting time‑varying PD, allowing historical cohort PDs to be adjusted to reflect expected future economic conditions across the projection horizon.
+
+```
+Final MEV(s): ['BROLP_MA9M_LAG9M', 'UNEM_MA9M_LAG3M', 'PIR_MA6M']
+Forecasting PD
+Year 1: 2.92%
+Year 2: 1.45%
+Year 3: 1.83%
+```
+
+#### 3.3 Calibration by Logit Approach
+**Logit Approach:** The calibration using a logit approach to ensure numerical stability and proportional adjustment across time and segmentation. Cohort curves and the predicted PD(s) are transformed into logit space, where calibration factors are estimated to align adjusted PD curves with observed default outcomes while preserving smoothness, monotonicity, and lifetime plausibility.
+
+The calibration process is done on logit space of conditional PD while the base cohort curves are computed by cumulative basis. The transformation is done by following formula to perform the calibration and convert back to final result.
+
+$$
+Marginal\ PD = Cumulative\ PD_{t + 1} - Cumulative\ PD_{t}
+$$
+
+$$
+Conditional\ PD = \frac{{Marginal\ PD}_{t}}{1 - {Cumulative\ PD}_{t - 1}}
+$$
+
+$$
+Calibration\ PD_{Portfolio} = Logit(Conditional\ PD_{t}) + Logit(FWL\ PD) - Logit(TTC\ PD)
+$$
+
+$$
+Calibration\ PD_{Segment} = Logit(Conditional\ PD_{t}) + Logit(FWL\ PD) - Logit(TTC\ PD) + Delta
+$$
+
+where;
+
+- $t$ is a time in lifetime period
+
+#### 3.4 Optimization PiT PD
+**Delta for PiT PD:** The optimization process is to minimize overall deviations between the adjusted average PD Curve of portfolio level and segment level PD Curves. In the other words, the forecasting PD from the forward-looking model should represent overall risk of the portfolio since the model has been done based on portfolio level. By seperating calibration by segment, it could cause the deviations from portfolio risk. This optimization process of delta is to ensures consistency across segments, avoids distortion of portfolio level risk, and results in optimized lifetime PD term structures that are forward‑looking, unbias, and suitable for IFRS 9 Reporting and risk management use.
+<p align="center">
+<img width="1964" height="1208" alt="การพัฒนาแบบจำลอง IFRS 9 PD Model ตั้งแต่ต้นจนจบ)" src="https://github.com/user-attachments/assets/cba773a0-df01-4ea9-8141-a94d41ef2551" />
+</p>
+
+
+
+
+

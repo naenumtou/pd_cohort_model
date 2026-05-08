@@ -868,17 +868,19 @@ def plot_backtest(
         Showing the historical time series between actual and predicted from the model.
 
     Args:
-        y_train (pd.Series)         : The dependence variable target data (Logit, CF or CCI).
-        model (dict)                : The dictionary of all candidate models.
-                                    Keys are the candidate models name.
-                                    Values are trained model output from sm.OLS().fit().
-                                    {keys: values} --> {str: callable}
-        model_name (str)            : The random model name for showing the back-testing.
-        model_method (str)          : Name of the regression method. The function is plotted;
-                                    1) model_method = "Logit" --> %ODR vs %predicted ODR.
-                                    2) model_method = "CF" --> Inverse CF and compute %ODR vs %predicted ODR.
-                                    3) model_method = "CCI" --> CCI vs predicted CCI.
-        std_params (pd.DataFrame)   : The data tabel contained standardisation parameters.
+        y_train (pd.Series)                     : The dependence variable target data (Logit, CF or CCI).
+        model (dict)                            : The dictionary of all candidate models.
+                                                Keys are the candidate models name.
+                                                Values are trained model output from sm.OLS().fit().
+                                                {keys: values} --> {str: callable}
+        model_name (str)                        : The random model name for showing the back-testing.
+        model_method (str)                      : Name of the regression method. The function is plotted;
+                                                1) model_method = "Logit" --> %ODR vs %predicted ODR.
+                                                2) model_method = "CF" --> Inverse CF and compute %ODR vs %predicted ODR.
+                                                3) model_method = "CCI" --> CCI vs predicted CCI.
+                                                If model_method = "CCI", the std_params must input as pd.DataFrame
+        std_params (pd.DataFrame, optional)     : The data tabel contained standardisation parameters.
+                                                If None, the model_method must be "Logit" or "CCI".
 
     Returns:
         Figure: Showing figure from matplotlib.

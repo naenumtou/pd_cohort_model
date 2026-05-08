@@ -139,7 +139,7 @@ def lifetime_flag(
     Args:
         df (pd.DataFrame)   : Input dataframe.
         default_col (str)   : Default column that already flag (0, 1) for modeling.
-        lifetime_lags(int)  : Defined n-lags for forward performance lifetime windows creation.
+        lifetime_lags (int) : Defined n-lags for forward performance lifetime windows creation.
 
     Returns:
         pd.DataFrame: DataFrame with lifetime default flag and times of event appended.

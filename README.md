@@ -129,6 +129,51 @@ where;
 <img width="1690" height="931" alt="การพัฒนาแบบจำลอง IFRS 9 PD Model ตั้งแต่ต้นจนจบ" src="https://github.com/user-attachments/assets/fe580c69-d4d4-4728-99f2-ee073f5d786f" />
 </p>
 
+#### 2.1 Macroeconomics Variables Transformation
+#### 2.2 Univariate Analysis
+
+<p align="center">
+<img width="989" height="590" alt="การพัฒนาแบบจำลอง IFRS 9 PD Model ตั้งแต่ต้นจนจบ" src="https://github.com/user-attachments/assets/bf8250bc-22dd-4893-a42c-54bce6b9af0e" />
+</p>
+
+
+```
+[Univariate analysis]
+=== Result ===
+Number of passed variables: 214
+```
+
+#### 2.3 Multivariate Analysis
+
+<p align="center">
+<img width="1965" height="789" alt="การพัฒนาแบบจำลอง IFRS 9 PD Model ตั้งแต่ต้นจนจบ" src="https://github.com/user-attachments/assets/e424229f-6a14-4468-b18c-fde20826d317" />
+</p>
+
+```
+=== Result ===
+Number of passed variables: 33
+
+[Possible combinations of 1 variable(s)]
+    Number of combinations: 33
+[Possible combinations of 2 variable(s)]
+    Number of combinations: 468
+[Possible combinations of 3 variable(s)]
+    Number of combinations: 3731
+
+Totol combination for regression model: 4232
+```
+
+
+#### 2.4 Multiplie Linear Regression
+
+
+#### 2.5 Model Back-testing
+
+<p align="center">
+<img width="989" height="593" alt="การพัฒนาแบบจำลอง IFRS 9 PD Model ตั้งแต่ต้นจนจบ" src="https://github.com/user-attachments/assets/3ebc0ae3-86bd-46c0-82f7-9d1fdaaa0a2b" />
+</p>
+
+
 
 ### 3. Lifetime Model
 <p align="center">

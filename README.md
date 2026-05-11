@@ -68,6 +68,26 @@ pd_cohort_model/
 ```
 
 ## Project Details
+### 0. Model Segmentation
+> Note: The model segementation is only illustrative proposed. The full annlysis will be performed in another repository.
+
+
+| MOB | DPD | B-Score | Segment |
+|:---:|:---:|:---:|:---:|
+| <=6 | 0 |  | segment_0 |
+| <=6 | 1-30 |  | segment_1 |
+| <=6 | 31-60 |  | segment_2 |
+| <=6 | 60-90 |  | segment_3 |
+| >6 |  | B1 | segment_4 |
+| >6 |  | B2 | segment_5 |
+| >6 |  | B3 | segment_6 |
+| >6 |  | B4 | segment_7 |
+| >6 |  | B5 | segment_8 |
+| >6 |  | B6 | segment_9 |
+| >6 |  | B7 | segment_10 |
+| >6 |  | B8 | segment_11 |
+
+
 ### 1. Unbias Model
 <p align="center">
 <img width="1691" height="930" alt="การพัฒนาแบบจำลอง IFRS 9 PD Model ตั้งแต่ต้นจนจบ" src="https://github.com/user-attachments/assets/6631967e-8cf0-4308-95d6-fce603b22a7b" />
@@ -237,10 +257,26 @@ Number of passed variables: 214
 ```
 
 #### 2.4 Multivariate Analysis
+One of the commonly used industry methods to assess multicollinearity is variable clustering, which partitions a set of variables into non-overlapping clusters. This technique is implemented using the varclushi-opt library in Python. The objective is to form clusters in which variables are highly correlated with one another while exhibiting low correlation with variables in other clusters.
+> The varclushi-opt can see further details on [varclushi_opt](https://github.com/naenumtou/varclushi_opt/tree/master).
+
+An MEV is performed the cluster analysis and retained if the variable meets the following criteria:
+- Top 2 lowest R-Square ratio per cluster
+- Top 2 highest R-Square per cluster
 
 <p align="center">
 <img width="1965" height="789" alt="การพัฒนาแบบจำลอง IFRS 9 PD Model ตั้งแต่ต้นจนจบ" src="https://github.com/user-attachments/assets/e424229f-6a14-4468-b18c-fde20826d317" />
 </p>
+
+For model development purposes, all possible combinations of factors across clusters will be evaluated. This exhaustive assessment ensures that the full space of candidate models is explored, thereby increasing the likelihood of identifying the optimal model specification.
+When generating factor combinations, the following constraints are imposed to control multicollinearity and preserve interpretability:
+
+
+A single combination must not include more than one variable from the same cluster.
+A single combination must not include more than one variable originating from the same pre-transformation group.
+
+
+The number of variables included in each model may be adjusted based on empirical results or business considerations. However, the number of factors is capped at three, as including more than three variables typically increases the risk of multicollinearity and can adversely impact model stability and performance.
 
 ```
 === Result ===
@@ -256,8 +292,8 @@ Number of passed variables: 33
 Totol combination for regression model: 4232
 ```
 
-
 #### 2.5 Multiplie Linear Regression
+Multiple linear regression is widely used in the industry for predictive modeling. This regression approach aims to estimate the relationship between a dependent variable and one or more independent variables, which in this context are macroeconomic variables. When a model includes two or more independent variables, it is referred to as a multiple linear regression model. The table below is summary of model diagnostic assumptions test for conclusion of BLUE (**B**est **L**inear **U**nbias **E**stimator):
 
 
 #### 2.6 Model Back-testing
@@ -322,8 +358,5 @@ where;
 <p align="center">
 <img width="1964" height="1208" alt="การพัฒนาแบบจำลอง IFRS 9 PD Model ตั้งแต่ต้นจนจบ)" src="https://github.com/user-attachments/assets/cba773a0-df01-4ea9-8141-a94d41ef2551" />
 </p>
-
-
-
 
 

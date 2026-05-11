@@ -71,7 +71,8 @@ pd_cohort_model/
 ### 0. Model Segmentation
 > Note: The model segementation is only illustrative proposed. The full annlysis will be performed in another repository.
 
-
+<div align="center">
+ 
 | MOB | DPD | B-Score | Segment |
 |:---:|:---:|:---:|:---:|
 | <=6 | 0 |  | segment_0 |
@@ -87,6 +88,7 @@ pd_cohort_model/
 | >6 |  | B7 | segment_10 |
 | >6 |  | B8 | segment_11 |
 
+</div>
 
 ### 1. Unbias Model
 <p align="center">
@@ -202,6 +204,9 @@ The historical ODR(s) are transformed using a logit function. The logit function
 
 #### 2.2 Macroeconomics Variables Transformation
 A set of 24 macroeconomic variables (MEV) is used in the forward-looking model.The expected intuitive direction of their correlation with default rates for the portfolio. The intuitive direction reflects the anticipated relationship between changes in macroeconomic conditions and changes in default rates. For instance, an increase in the unemployment rate is expected to lead to higher default rates, implying a positive correlation.
+
+<div align="center">
+ 
 | No. | Macroeconomics variables | MEV | Sign with default | Reasons | Data type |
 |:---:|---|:---:|:---:|---|:---:|
 | 1 | Gross Domestic Product | GDP | Negative | The gross domestic product (GDP) is one of the primary indicators used to gauge the health of a country's economy. Therefore, an increase in GDP is expected to decrease in default rate. | Flow |
@@ -229,7 +234,11 @@ A set of 24 macroeconomic variables (MEV) is used in the forward-looking model.T
 | 23 | Foreign Reserve | FRES | Negative | A large foreign reserve indicates strong economic performance, default rate should be negatively decreased. | Flow |
 | 24 | Labour Index | LAB | Negative | High labour index indicates the stregthening labour market, with increased employment or wages. As a result, the default rate is expected to decreased. | Index |
 
+</div>
+
 The MEV Time series may not have a direct relationship with the dependent variable. Therefore, several transformations or alternative specifications may need to be considered to identify a meaningful relationship.
+
+<div align="center">
 
 | Transformation | Formula |
 |---|---|
@@ -238,6 +247,8 @@ The MEV Time series may not have a direct relationship with the dependent variab
 | Natural log transformation | $LN(MEV_{t})$ |
 | Moving average | $(MEV_{t} + MEV_{t-1} + MEV_{t-n} + ...) / n$  |
 | Leading indicator | $Lag_{t}(MEV)$ |
+
+</div>
 
 #### 2.3 Univariate Analysis
 After completing the transformation of the MEV(s), preliminary assessments are conducted to further narrow down the candidate variables prior to multivariate analysis. An MEV is performed the single linear regression and retained if the variable meets the following criteria:

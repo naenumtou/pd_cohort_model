@@ -62,7 +62,7 @@ pd_cohort_model/
 |   |   └── mev_transformed.parquet
 │   └── raw/
 |   |   ├── usedcar_transaction_score.parquet          #Not tracked by git
-|   |   └── mev_data.csv
+|   └── └── mev_data.csv
 ├── requirements.txt
 └── README.md
 ```

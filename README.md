@@ -281,11 +281,8 @@ An MEV is performed the cluster analysis and retained if the variable meets the 
 
 For model development purposes, all possible combinations of factors across clusters will be evaluated. This exhaustive assessment ensures that the full space of candidate models is explored, thereby increasing the likelihood of identifying the optimal model specification.
 When generating factor combinations, the following constraints are imposed to control multicollinearity and preserve interpretability:
-
-
-A single combination must not include more than one variable from the same cluster.
-A single combination must not include more than one variable originating from the same pre-transformation group.
-
+- A single combination must not include more than one variable from the same cluster.
+- A single combination must not include more than one variable originating from the same pre-transformation group.
 
 The number of variables included in each model may be adjusted based on empirical results or business considerations. However, the number of factors is capped at three, as including more than three variables typically increases the risk of multicollinearity and can adversely impact model stability and performance.
 

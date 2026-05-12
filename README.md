@@ -303,6 +303,18 @@ Totol combination for regression model: 4232
 #### 2.5 Multiplie Linear Regression
 Multiple linear regression is widely used in the industry for predictive modeling. This regression approach aims to estimate the relationship between a dependent variable and one or more independent variables, which in this context are macroeconomic variables. When a model includes two or more independent variables, it is referred to as a multiple linear regression model. The table below is summary of model diagnostic assumptions test for conclusion of BLUE (**B**est **L**inear **U**nbias **E**stimator):
 
+<div align="center">
+ 
+| Category | Description | Common tests | Risk (if not satisfied) | Passed criteria |
+|:---:|---|---|---|:---:|
+| p-value   significant | The p-value of   coefficients are less than or equal to 10% | OLS Regression | p-values is not   statistically significant | < 0.05 |
+| Multicollinearity | Independent   variables are not strongly linearly related | Variance   inflation factor (VIF) | Imprecise   and/or ill-defined coefficient estimates | < 10 |
+| Residual   normality | Residuals   follow a normal distribution | Anderson-Darling   test | Inaccurate   p-values | > 0.05 |
+| Residual   homoscedasticity | Variance of   residuals is independent of the fitted value | White test | Inaccurate   p-values | > 0.05 |
+| Residual   autocorrelation | Residuals are   not autocorrelated | Durbin Watson | Inaccurate   p-values; in particular, positive autocorrelation overstates significance of   variables | (1 - 3) |
+| Residual   stationary | (Co-integration)   implying residuals are stationary, i.e. display constant mean and variance   over time | Augmented   Dickey-Fuller test | Inaccurate   p-values and misleading R-Square | < 0.1 |
+
+</div>
 
 #### 2.6 Model Back-testing
 
@@ -325,7 +337,7 @@ Multiple linear regression is widely used in the industry for predictive modelin
 
 
 
-#### 3.2 Forward-looking Infornation
+#### 3.2 Forward-looking Information
 **PD Prediction:** The forward‑looking information is incorporated through outputs from the forward‑looking PD model. The macroeconomic variables is used as input for forecasting time‑varying PD, allowing historical cohort PDs to be adjusted to reflect expected future economic conditions across the projection horizon.
 
 ```

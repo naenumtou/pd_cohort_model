@@ -318,11 +318,11 @@ Multiple linear regression is widely used in the industry for predictive modelin
 </div>
 
 #### 2.6 Model Back-testing
-
+The model back-testing of actual ODR and predicted ODR from the regression model have been displayed in the following section. The visualisation of model back-testing in the following:
 <p align="center">
 <img width="989" height="593" alt="การพัฒนาแบบจำลอง IFRS 9 PD Model ตั้งแต่ต้นจนจบ" src="https://github.com/user-attachments/assets/3ebc0ae3-86bd-46c0-82f7-9d1fdaaa0a2b" />
 </p>
-
+> Note: It is a ramdom selection model. No expert input in this model.
 
 
 ### 3. Lifetime Model
@@ -380,4 +380,5 @@ where;
 <img width="1964" height="1208" alt="การพัฒนาแบบจำลอง IFRS 9 PD Model ตั้งแต่ต้นจนจบ)" src="https://github.com/user-attachments/assets/cba773a0-df01-4ea9-8141-a94d41ef2551" />
 </p>
 
-
+## License
+MIT · Built for learning purposes

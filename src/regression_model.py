@@ -226,8 +226,15 @@ def mev_transformation(
         engine = 'pyarrow'
         )
     
+    filename2 = "mev_sign_transformed"
+    data.to_parquet(
+        f"../data/processed/{filename2}.parquet",
+        engine = 'pyarrow'
+        )
+    
     print(f"=== Result ===\nTotal MEV(s): {data.shape[1]}")
     print(f"[INFO]: Export - '..data/processed/{filename}.parquet'")
+    print(f"[INFO]: Export - '..data/processed/{filename2}.parquet'")
 
     return data, final_sign_transformed
 

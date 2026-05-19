@@ -30,7 +30,7 @@ The resulting PD term structures can be directly used in Stage 1 and Stage 2 ECL
 ## Project Structure
 ```
 pd_cohort_model/
-├── models/                                       #Trainned model and parameters (pkl.)
+├── model/                                        #Trainned model and parameters (pkl.)
 │   ├── actual_cumulative_odr.pkl
 │   ├── chain_cumulative_odr.pkl
 │   ├── w_avg_chain_cumulative_odr.pkl

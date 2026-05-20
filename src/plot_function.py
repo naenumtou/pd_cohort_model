@@ -877,8 +877,8 @@ def plot_backtest(
         model_method (str)                      : Name of the regression method. The function is plotted;
                                                 1) model_method = "Logit" --> %ODR vs %predicted ODR.
                                                 2) model_method = "CF" --> Inverse CF and compute %ODR vs %predicted ODR.
+                                                If model_method = "CF", the std_params must input as pd.DataFrame
                                                 3) model_method = "CCI" --> CCI vs predicted CCI.
-                                                If model_method = "CCI", the std_params must input as pd.DataFrame
         std_params (pd.DataFrame, optional)     : The data table contained standardisation parameters.
                                                 If None, the model_method must be "Logit" or "CCI".
 

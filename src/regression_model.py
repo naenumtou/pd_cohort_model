@@ -679,8 +679,8 @@ def run_fwl_model(
         model_method (str)                      : Name of the regression method. The function is computed;
                                                 1) model_method = "Logit" --> %ODR vs %predicted ODR.
                                                 2) model_method = "CF" --> Inverse CF and compute %ODR vs %predicted ODR.
+                                                If model_method = "CF", the std_params must input as pd.DataFrame
                                                 3) model_method = "CCI" --> CCI vs predicted CCI.
-                                                If model_method = "CCI", the std_params must input as pd.DataFrame
         config_threhold (dict)                  : The pre-set threshold for model misspecification.
         std_params (pd.DataFrame, optional)     : The data table contained standardisation parameters.
                                                 If None, the model_method must be "Logit" or "CCI".

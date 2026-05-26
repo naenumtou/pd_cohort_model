@@ -324,7 +324,6 @@ The model back-testing of actual ODR and predicted ODR from the regression model
 </p>
 > Note: It is a ramdom selection model. No expert input in this model.
 
-
 ### 3. Lifetime Model
 <p align="center">
 <img width="1647" height="955" alt="การพัฒนาแบบจำลอง IFRS 9 PD Model ตั้งแต่ต้นจนจบ" src="https://github.com/user-attachments/assets/0c231db8-8d81-408a-87b0-d1bf05a735c6" />
@@ -335,8 +334,6 @@ The model back-testing of actual ODR and predicted ODR from the regression model
 <p align="center">
 <img width="989" height="590" alt="การพัฒนาแบบจำลอง IFRS 9 PD Model ตั้งแต่ต้นจนจบ" src="https://github.com/user-attachments/assets/8e8d2908-31c0-4ae6-b098-3ec66516b7ec" />
 </p>
-
-
 
 #### 3.2 Forward-looking Information
 **PD Prediction:** The forward‑looking information is incorporated through outputs from the forward‑looking PD model. The macroeconomic variables is used as input for forecasting time‑varying PD, allowing historical cohort PDs to be adjusted to reflect expected future economic conditions across the projection horizon.

@@ -160,6 +160,7 @@ def lifetime_flag(
 
     return df
 
+# Drop unused columns
 def drop_cols(
     df: pd.DataFrame,
     default_col: str,

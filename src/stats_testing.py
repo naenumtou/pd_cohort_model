@@ -313,7 +313,7 @@ def adf_test(
 
     Notes:
         - If the p-value is less than or equal to (<=) 0.1, the residual is stationary.
-        - If the p-value is greater than (>) 0.1, the model is not passed normality assumption.
+        - If the p-value is greater than (>) 0.1, the model is not passed stationary assumption.
         - The limitation of Engle-Granger Cointegration methodology:
             - The cointegration result is appropriate for two variables. For multiple variables, the Johansen cointegration test is better.
             - The method assumes a linear cointegrating relationship, which may not hold in all cases.
